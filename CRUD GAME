@@ -1,0 +1,251 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CrudGame {
+
+    public static void main(String[] args) {
+        // Create a frame
+        JFrame frame = new JFrame("CRUD GAME");
+        
+        // Set the frame properties for 1920x1080 resolution
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1920, 1080); // Set resolution to 1920x1080
+        frame.setLayout(null);
+        frame.getContentPane().setBackground(new Color(255, 228, 196)); // Light peach background
+
+        // Call the home screen
+        showHomeScreen(frame);
+
+        // Make the frame visible
+        frame.setVisible(true);
+    }
+
+    // Method to display the home screen
+    private static void showHomeScreen(JFrame frame) {
+        // Clear the frame
+        frame.getContentPane().removeAll();
+        frame.repaint();
+
+        // Title Label
+        JLabel titleLabel = new JLabel("CRUD GAME");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 80)); // Larger font size for fullscreen
+        titleLabel.setBounds(710, 50, 500, 100); // Centered at the top middle
+        frame.add(titleLabel);
+
+        // PLAY button
+        JButton playButton = new JButton("PLAY!!!");
+        playButton.setFont(new Font("Arial", Font.BOLD, 30)); // Larger button font size
+        playButton.setBounds(835, 300, 250, 80); // Larger button size and adjusted position
+        playButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Action for PLAY button
+                JOptionPane.showMessageDialog(frame, "Starting the game...");
+            }
+        });
+        frame.add(playButton);
+
+        // SETTINGS button
+        JButton settingsButton = new JButton("SETTINGS");
+        settingsButton.setFont(new Font("Arial", Font.BOLD, 30)); // Larger button font size
+        settingsButton.setBounds(835, 420, 250, 80); // Larger button size and adjusted position
+        settingsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Open the settings page
+                showSettingsPage(frame);
+            }
+        });
+        frame.add(settingsButton);
+
+        // ABOUT US button
+        JButton aboutButton = new JButton("ABOUT US");
+        aboutButton.setFont(new Font("Arial", Font.BOLD, 30)); // Larger button font size
+        aboutButton.setBounds(835, 540, 250, 80); // Larger button size and adjusted position
+        aboutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Open the about us page
+                showAboutUsPage(frame);
+            }
+        });
+        frame.add(aboutButton);
+
+        // Refresh the frame
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    // Method to display the settings page
+    private static void showSettingsPage(JFrame frame) {
+        // Clear the frame
+        frame.getContentPane().removeAll();
+        frame.repaint();
+
+        // Create a tabbed pane
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setBounds(0, 0, frame.getWidth(), frame.getHeight() - 150); // Dynamically adjust size
+
+        // Set a larger font for the tab titles and increase tab height
+        Font tabFont = new Font("Arial", Font.BOLD, 30); // Larger font size for tabs
+        UIManager.put("TabbedPane.font", tabFont);
+        UIManager.put("TabbedPane.tabInsets", new Insets(10, 20, 10, 20)); // Increase tab height and padding
+
+        // Music Tab
+        JPanel musicPanel = new JPanel(null); // Use null layout for custom positioning
+        JLabel musicLabel = new JLabel("Music Settings");
+        musicLabel.setFont(new Font("Arial", Font.BOLD, 40));
+        musicLabel.setBounds(50, 50, 400, 50);
+        musicPanel.add(musicLabel);
+        tabbedPane.addTab("Music", musicPanel);
+
+        // Graphics Tab
+        JPanel graphicsPanel = new JPanel(null);
+        JLabel graphicsLabel = new JLabel("Graphics Settings");
+        graphicsLabel.setFont(new Font("Arial", Font.BOLD, 40));
+        graphicsLabel.setBounds(50, 50, 400, 50);
+        graphicsPanel.add(graphicsLabel);
+
+        // Resolution Dropdown
+        JLabel resolutionLabel = new JLabel("Resolution:");
+        resolutionLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        resolutionLabel.setBounds(100, 150, 200, 30);
+        graphicsPanel.add(resolutionLabel);
+
+        String[] resolutions = { "1920x1080", "1600x900", "1280x720", "1024x768" };
+        JComboBox<String> resolutionDropdown = new JComboBox<>(resolutions);
+        resolutionDropdown.setFont(new Font("Arial", Font.PLAIN, 20));
+        resolutionDropdown.setBounds(300, 150, 200, 30);
+        resolutionDropdown.addActionListener(e -> {
+            String selectedResolution = (String) resolutionDropdown.getSelectedItem();
+            if (selectedResolution != null) {
+                switch (selectedResolution) {
+                    case "1920x1080":
+                        frame.setSize(1920, 1080);
+                        break;
+                    case "1600x900":
+                        frame.setSize(1600, 900);
+                        break;
+                    case "1280x720":
+                        frame.setSize(1280, 720);
+                        break;
+                    case "1024x768":
+                        frame.setSize(1024, 768);
+                        break;
+                }
+                frame.setLocationRelativeTo(null); // Center the frame on the screen
+            }
+        });
+        graphicsPanel.add(resolutionDropdown);
+        tabbedPane.addTab("Graphics", graphicsPanel);
+
+        // Control Tab
+        JPanel controlPanel = new JPanel(null);
+        JLabel controlLabel = new JLabel("Control Settings");
+        controlLabel.setFont(new Font("Arial", Font.BOLD, 40));
+        controlLabel.setBounds(50, 50, 400, 50);
+        controlPanel.add(controlLabel);
+        tabbedPane.addTab("Control", controlPanel);
+
+        // Add the tabbed pane to the frame
+        frame.add(tabbedPane);
+
+        // Back Button
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 30));
+        backButton.setBounds(frame.getWidth() / 2 - 125, frame.getHeight() - 100, 250, 80); // Centered below the tabs
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Go back to the home screen
+                showHomeScreen(frame);
+            }
+        });
+        frame.add(backButton);
+
+        // Add a ComponentListener to adjust components on frame resize
+        frame.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                tabbedPane.setBounds(0, 0, frame.getWidth(), frame.getHeight() - 150);
+                backButton.setBounds(frame.getWidth() / 2 - 125, frame.getHeight() - 100, 250, 80);
+
+                // Dynamically adjust components in Music Tab
+                musicLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
+
+                // Dynamically adjust components in Graphics Tab
+                graphicsLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
+                resolutionLabel.setBounds(100, 150, 200, 30);
+                resolutionDropdown.setBounds(300, 150, 200, 30);
+
+                // Dynamically adjust components in Control Tab
+                controlLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
+            }
+        });
+
+        // Refresh the frame
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    // Method to display the about us page
+    private static void showAboutUsPage(JFrame frame) {
+        // Clear the frame
+        frame.getContentPane().removeAll();
+        frame.repaint();
+
+        // Create a tabbed pane
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setBounds(400, 100, 1120, 700); // Centered for 1920x1080 resolution
+
+        // Set a larger font for the tab titles and increase tab height
+        Font tabFont = new Font("Arial", Font.BOLD, 30); // Larger font size for tabs
+        UIManager.put("TabbedPane.font", tabFont);
+        UIManager.put("TabbedPane.tabInsets", new Insets(10, 20, 10, 20)); // Increase tab height and padding
+
+        // About Game Tab
+        JPanel aboutGamePanel = new JPanel();
+        aboutGamePanel.setLayout(null); // Use null layout for custom positioning
+        JLabel aboutGameLabel = new JLabel("<html><div style='text-align: justify;'>"
+            + "Kita ingin membuat game karena kita melihat pasar game selama beberapa tahun kebelakang meningkat dengan pesat.<br>"
+            + "Dimana sekarang mulai banyak orang yang membuat game-game sederhana untuk mencari pendapatan.<br>"
+            + "Yang game-game ini yang dibuat oleh 1 orang atau hanya kelompok kecil yang tidak di support oleh company besar.<br>"
+            + "Biasanya, kita menyebutnya indie game. Game ini dibuat untuk mengisi waktu luang kita.<br>"
+            + "Mungkin kita bosan untuk bermain game online/game yang ada di gadget kita, game ini bisa dicoba untuk sekedar bermain saat bingung ingin bermain game di gadget kita."
+            + "</div></html>");
+        aboutGameLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        aboutGameLabel.setBounds(50, 50, 1020, 600); // Positioned with padding and justified width
+        aboutGamePanel.add(aboutGameLabel);
+        tabbedPane.addTab("About Game", aboutGamePanel);
+
+        // About Developer Tab
+        JPanel aboutDeveloperPanel = new JPanel();
+        aboutDeveloperPanel.setLayout(null); // Use null layout for custom positioning
+        JLabel aboutDeveloperLabel = new JLabel("<html><div style='text-align: justify;'>"
+            + "This game was developed by a random kid from SEDES SAPIENTIAE SEMARANG that really doesn't know what to do in his life.<br>"
+            + "The developer was forced to make this game because of the demand for an Informatics or Computer Science project assignment.<br>"
+            + "Feel free to reach out for feedback or collaboration!<br>"
+            + "Contact us at: +62 896-0364-0977"
+            + "</div></html>");
+        aboutDeveloperLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        aboutDeveloperLabel.setBounds(50, 50, 1020, 600); // Positioned with padding and justified width
+        aboutDeveloperPanel.add(aboutDeveloperLabel);
+        tabbedPane.addTab("About Developer", aboutDeveloperPanel);
+
+        // Add the tabbed pane to the frame
+        frame.add(tabbedPane);
+
+        // Back Button
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 30));
+        backButton.setBounds(835, 850, 250, 80); // Positioned below the tabs
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Go back to the home screen
+                showHomeScreen(frame);
+            }
+        });
+        frame.add(backButton);
+
+        // Refresh the frame
+        frame.revalidate();
+        frame.repaint();
+    }
+}
