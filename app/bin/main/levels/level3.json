@@ -1,0 +1,56 @@
+{
+    "levelNumber": 3,
+    "name": "Neon Nights",
+    "grid": [
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 1, "g": 0, "b": 0.7, "isCenter": true},
+            {"r": 0, "g": 1, "b": 0.7, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0.7, "g": 0, "b": 1, "isCenter": true},
+            {"r": 1, "g": 0.7, "b": 0, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 1, "b": 0.7, "isCenter": true},
+            {"r": 1, "g": 0, "b": 0.7, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 1, "g": 0.7, "b": 0, "isCenter": true},
+            {"r": 0.7, "g": 0, "b": 1, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ]
+    ]
+}

@@ -1,0 +1,64 @@
+{
+    "id": "level_1",
+    "name": "Advanced Puzzle",
+    "settings": {
+        "gridSize": 6,
+        "maxMoves": 10,
+        "difficulty": "medium",
+        "creator": "system",
+        "createdAt": "2025-05-11",
+        "description": "6x6 puzzle with limited moves"
+    },
+    "grid": [
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": false},
+            {"red": 1.0, "green": 0.5, "blue": 0.5, "isCenter": false},
+            {"red": 0.5, "green": 1.0, "blue": 1.0, "isCenter": false}
+        ],
+        [
+            {"red": 0.5, "green": 0.5, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 0.5, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 0.5, "isCenter": false}
+        ],
+        [
+            {"red": 1.0, "green": 0.5, "blue": 1.0, "isCenter": false},
+            {"red": 0.5, "green": 1.0, "blue": 0.5, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false}
+        ],
+        [
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false}
+        ],
+        [
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 1.0, "isCenter": false}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.5, "green": 1.0, "blue": 1.0, "isCenter": false},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": false},
+            {"red": 1.0, "green": 0.5, "blue": 0.5, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": false}
+        ]
+    ]
+}

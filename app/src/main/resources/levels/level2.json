@@ -1,0 +1,56 @@
+{
+    "levelNumber": 2,
+    "name": "Pastel Paradise",
+    "grid": [
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 1, "g": 0.8, "b": 0.8, "isCenter": true},
+            {"r": 0.8, "g": 1, "b": 0.8, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0.8, "g": 0.8, "b": 1, "isCenter": true},
+            {"r": 1, "g": 1, "b": 0.8, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0.8, "g": 1, "b": 0.8, "isCenter": true},
+            {"r": 1, "g": 0.8, "b": 0.8, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 1, "g": 1, "b": 0.8, "isCenter": true},
+            {"r": 0.8, "g": 0.8, "b": 1, "isCenter": true},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ],
+        [
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false},
+            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+        ]
+    ]
+}
