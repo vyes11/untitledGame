@@ -1,0 +1,86 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class LoginPage {
+    public static void main(String[] args) {
+        // Create the frame
+        JFrame frame = new JFrame("Login Page");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
+        frame.setLayout(new BorderLayout());
+
+        // Create a panel for the main content
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding
+
+        // Create components
+        JLabel welcomeLabel = new JLabel("Welcome :)", SwingConstants.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JTextField emailField = new JTextField();
+        emailField.setMaximumSize(new Dimension(300, 30));
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPasswordField passwordField = new JPasswordField();
+        passwordField.setMaximumSize(new Dimension(300, 30));
+
+        JCheckBox showPassword = new JCheckBox("Show Password");
+        showPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showPassword.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (showPassword.isSelected()) {
+                    passwordField.setEchoChar((char) 0); // Show password
+                } else {
+                    passwordField.setEchoChar('*'); // Hide password
+                }
+            }
+        });
+
+        // Buttons panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        JButton loginButton = new JButton("LOGIN");
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
+                JOptionPane.showMessageDialog(frame, "Login Clicked: " + email + " " + password);
+            }
+        });
+
+        JButton guestButton = new JButton("Play As A Guest");
+        JButton signUpButton = new JButton("SIGN UP");
+
+        buttonPanel.add(loginButton);
+        buttonPanel.add(guestButton);
+        buttonPanel.add(signUpButton);
+
+        // Add components to the main panel
+        mainPanel.add(welcomeLabel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Spacer
+        mainPanel.add(emailLabel);
+        mainPanel.add(emailField);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Spacer
+        mainPanel.add(passwordLabel);
+        mainPanel.add(passwordField);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Spacer
+        mainPanel.add(showPassword);
+
+        // Add panels to the frame
+        frame.add(mainPanel, BorderLayout.CENTER);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Set visible
+        frame.setVisible(true);
+    }
+}
