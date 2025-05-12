@@ -9,6 +9,10 @@ public class CrudGame {
     private static String currentResolution = "1920x1080";
 
     public static void main(String[] args) {
+        // Set UIManager properties for consistent tab styling
+        UIManager.put("TabbedPane.font", new Font("Arial", Font.BOLD, 25));
+        UIManager.put("TabbedPane.tabInsets", new Insets(10, 20, 10, 20));
+
         // Create a frame
         JFrame frame = new JFrame("CRUD GAME");
 
@@ -20,6 +24,14 @@ public class CrudGame {
 
         // Call the home screen
         showHomeScreen(frame);
+
+        // Add a ComponentListener to dynamically adjust components on resize
+        frame.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                // Dynamically adjust components when the frame is resized
+                showHomeScreen(frame);
+            }
+        });
 
         // Make the frame visible
         frame.setVisible(true);
@@ -85,15 +97,10 @@ public class CrudGame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setBounds(200, 100, frame.getWidth() - 400, frame.getHeight() - 400); // Smaller tabbed pane
 
-        // Set a larger font for the tab titles and increase tab height
-        Font tabFont = new Font("Arial", Font.BOLD, 25); // Slightly smaller font size for tabs
-        UIManager.put("TabbedPane.font", tabFont);
-        UIManager.put("TabbedPane.tabInsets", new Insets(10, 20, 10, 20)); // Increase tab height and padding
-
         // Music Tab
         JPanel musicPanel = new JPanel(null);
         JLabel musicLabel = new JLabel("Music Settings");
-        musicLabel.setFont(new Font("Arial", Font.BOLD, 35)); // Larger font size for the title
+        musicLabel.setFont(new Font("Arial", Font.BOLD, 35));
         musicLabel.setBounds(50, 50, 400, 50);
         musicPanel.add(musicLabel);
         tabbedPane.addTab("Music", musicPanel);
@@ -101,19 +108,19 @@ public class CrudGame {
         // Graphics Tab
         JPanel graphicsPanel = new JPanel(null);
         JLabel graphicsLabel = new JLabel("Graphics Settings");
-        graphicsLabel.setFont(new Font("Arial", Font.BOLD, 35)); // Larger font size for the title
+        graphicsLabel.setFont(new Font("Arial", Font.BOLD, 35));
         graphicsLabel.setBounds(50, 50, 400, 50);
         graphicsPanel.add(graphicsLabel);
 
         // Resolution Dropdown
         JLabel resolutionLabel = new JLabel("Resolution:");
-        resolutionLabel.setFont(new Font("Arial", Font.PLAIN, 20)); // Slightly larger font size
+        resolutionLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         resolutionLabel.setBounds(100, 150, 200, 30);
         graphicsPanel.add(resolutionLabel);
 
         String[] resolutions = { "1920x1080", "1600x900", "1280x720", "1024x768" };
         JComboBox<String> resolutionDropdown = new JComboBox<>(resolutions);
-        resolutionDropdown.setFont(new Font("Arial", Font.PLAIN, 20)); // Slightly larger font size
+        resolutionDropdown.setFont(new Font("Arial", Font.PLAIN, 20));
         resolutionDropdown.setBounds(300, 150, 200, 30);
         resolutionDropdown.setSelectedItem(currentResolution); // Set the current resolution
         resolutionDropdown.addActionListener(e -> {
@@ -143,7 +150,7 @@ public class CrudGame {
         // Control Tab
         JPanel controlPanel = new JPanel(null);
         JLabel controlLabel = new JLabel("Control Settings");
-        controlLabel.setFont(new Font("Arial", Font.BOLD, 35)); // Larger font size for the title
+        controlLabel.setFont(new Font("Arial", Font.BOLD, 35));
         controlLabel.setBounds(50, 50, 400, 50);
         controlPanel.add(controlLabel);
         tabbedPane.addTab("Control", controlPanel);
@@ -154,7 +161,6 @@ public class CrudGame {
         // Back Button
         JButton backButton = new JButton("Back");
         backButton.setFont(new Font("Arial", Font.BOLD, 30));
-        // Naikkan tombol "Back" dengan mengurangi nilai Y
         backButton.setBounds(frame.getWidth() / 2 - 125, frame.getHeight() - 150, 250, 80); // Naikkan tombol
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -162,25 +168,6 @@ public class CrudGame {
             }
         });
         frame.add(backButton);
-
-        // Add a ComponentListener to adjust components on frame resize
-        frame.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                tabbedPane.setBounds(200, 100, frame.getWidth() - 400, frame.getHeight() - 400);
-                backButton.setBounds(frame.getWidth() / 2 - 125, frame.getHeight() - 150, 250, 80);
-
-                // Dynamically adjust components in Music Tab
-                musicLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
-
-                // Dynamically adjust components in Graphics Tab
-                graphicsLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
-                resolutionLabel.setBounds(100, 150, 200, 30);
-                resolutionDropdown.setBounds(300, 150, 200, 30);
-
-                // Dynamically adjust components in Control Tab
-                controlLabel.setBounds(50, 50, frame.getWidth() / 2, 50);
-            }
-        });
 
         // Refresh the frame
         frame.revalidate();
@@ -230,7 +217,6 @@ public class CrudGame {
         // Back Button
         JButton backButton = new JButton("Back");
         backButton.setFont(new Font("Arial", Font.BOLD, 30));
-        // Naikkan tombol "Back" dengan mengurangi nilai Y
         backButton.setBounds(frame.getWidth() / 2 - 125, frame.getHeight() - 150, 250, 80); // Naikkan tombol
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
