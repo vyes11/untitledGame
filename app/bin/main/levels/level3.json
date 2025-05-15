@@ -1,56 +1,109 @@
 {
-    "levelNumber": 3,
-    "name": "Neon Nights",
+    "id" : 3,
+    "name": "Top Row Lock",
+    "settings": {
+        "gridSize": 6,
+        "maxMoves": 15,
+        "description": "Simple 2x2 color matching tutorial" 
+    },
     "grid": [
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 1, "g": 0, "b": 0.7, "isCenter": true},
-            {"r": 0, "g": 1, "b": 0.7, "isCenter": true},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0.7, "g": 0, "b": 1, "isCenter": true},
-            {"r": 1, "g": 0.7, "b": 0, "isCenter": true},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
         ]
     ],
     "targetPattern": [
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 1, "b": 0.7, "isCenter": true},
-            {"r": 1, "g": 0, "b": 0.7, "isCenter": true},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 1, "g": 0.7, "b": 0, "isCenter": true},
-            {"r": 0.7, "g": 0, "b": 1, "isCenter": true},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true}
         ],
         [
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false},
-            {"r": 0, "g": 0, "b": 0, "isCenter": false}
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+        ],
+        [
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
         ]
     ]
 }

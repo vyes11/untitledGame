@@ -15,6 +15,12 @@
             "name": "App",
             "request": "launch",
             "mainClass": "thegame.App",
+            "vmArgs": [
+                "-Dorg.lwjgl.util.Debug=true",
+                "-Dorg.lwjgl.opengl.Display.allowSoftwareOpenGL=true",
+                "-XX:+UseG1GC",
+                "-Djoml.nounsafe=true"
+            ],
             "projectName": "app"
         }
     ]

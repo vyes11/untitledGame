@@ -1,12 +1,28 @@
 package thegame.utils;
 
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.Gson;
+import org.bson.Document;
 
 public class LevelConfig {
+    private int id;  // This will store the level number
     private String name;
+    private Settings settings;
     private Cell[][] grid;
     private Cell[][] targetPattern;
-    private Settings settings;  // Add settings field
+
+    // Add new fields for upload metadata
+    private String creator;
+    private long createdAt;
+    private boolean isCustomLevel;
+    private String description;
+    private boolean isNumberMode;
+
+    // Add getter for level number
+    public int getLevelNumber() {
+        return id;
+    }
+
 
     public static class Settings {
         @SerializedName("gridSize")
@@ -18,7 +34,16 @@ public class LevelConfig {
         @SerializedName("difficulty")
         private String difficulty = "easy";  // Default difficulty
 
+        private boolean isNumberMode;
+
         public Settings() {} // Default constructor for GSON
+
+        public Settings(int gridSize, int maxMoves, String difficulty, boolean isNumberMode) {
+            this.gridSize = gridSize;
+            this.maxMoves = maxMoves;
+            this.difficulty = difficulty;
+            this.isNumberMode = isNumberMode;
+        }
 
         public Settings(int gridSize, int maxMoves, String difficulty) {
             this.gridSize = gridSize;
@@ -30,6 +55,7 @@ public class LevelConfig {
         public int getGridSize() { return gridSize; }
         public int getMaxMoves() { return maxMoves; }
         public String getDifficulty() { return difficulty; }
+        public boolean isNumberMode() { return isNumberMode; }
     }
 
     public static class Cell {
@@ -81,4 +107,109 @@ public class LevelConfig {
             }
         }
     }
+
+    // Add builder pattern for easier level creation
+    public static class Builder {
+        private LevelConfig level;
+        private boolean isNumberMode;
+
+        public Builder() {
+            level = new LevelConfig();
+            level.createdAt = System.currentTimeMillis();
+            level.isCustomLevel = true;
+        }
+
+        public Builder withId(int id) {
+            level.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            level.name = name;
+            return this;
+        }
+
+        public Builder withGrid(Cell[][] grid) {
+            level.grid = grid;
+            return this;
+        }
+
+        public Builder withTargetPattern(Cell[][] targetPattern) {
+            level.targetPattern = targetPattern;
+            return this;
+        }
+
+        public Builder withSettings(Settings settings) {
+            level.settings = settings;
+            return this;
+        }
+
+        public Builder withCreator(String creator) {
+            level.creator = creator;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            level.description = description;
+            return this;
+        }
+
+        public Builder withNumberMode(boolean isNumberMode) {
+            this.isNumberMode = isNumberMode;
+            return this;
+        }
+
+        public LevelConfig build() {
+            validateLevel();
+            return level;
+        }
+
+        private void validateLevel() {
+            if (level.id <= 0) throw new IllegalStateException("Level ID must be positive");
+            if (level.name == null) throw new IllegalStateException("Level name is required");
+            if (level.grid == null) throw new IllegalStateException("Grid is required");
+            if (level.targetPattern == null) throw new IllegalStateException("Target pattern is required");
+            if (level.settings == null) throw new IllegalStateException("Settings are required");
+        }
+    }
+
+    // Add method to prepare level for upload
+    public Document toDocument() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        Document doc = Document.parse(json);
+        
+        // Add metadata if not present
+        if (!doc.containsKey("createdAt")) {
+            doc.append("createdAt", System.currentTimeMillis());
+        }
+        if (!doc.containsKey("creator")) {
+            doc.append("creator", "anonymous");
+        }
+        
+        return doc;
+    }
+
+    // Add static factory method for creating custom levels
+    public static LevelConfig createCustomLevel(int gridSize, int maxMoves) {
+        return new Builder()
+            .withId(generateCustomLevelId())
+            .withName("Custom Level")
+            .withGrid(new Cell[gridSize][gridSize])
+            .withTargetPattern(new Cell[gridSize][gridSize])
+            .withSettings(new Settings(gridSize, maxMoves, "custom"))
+            .withCreator("anonymous")
+            .withDescription("Custom created level")
+            .build();
+    }
+
+    private static int generateCustomLevelId() {
+        // Start custom levels from a high number to avoid conflicts
+        return 10000 + (int)(Math.random() * 90000);
+    }
+
+    // Add getters and setters for new fields
+    public boolean isCustomLevel() { return isCustomLevel; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }

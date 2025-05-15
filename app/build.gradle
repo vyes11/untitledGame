@@ -16,6 +16,7 @@ plugins {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    maven { url = 'https://jitpack.io' }
 }
 
 def lwjglVersion = "3.3.3"
@@ -36,17 +37,27 @@ dependencies {
     implementation "org.lwjgl:lwjgl"
     implementation "org.lwjgl:lwjgl-assimp"
     implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-opengl"
-    implementation "org.lwjgl:lwjgl-stb"
+    implementation "org.lwjgl:lwjgl-nuklear:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-openal"
+	implementation "org.lwjgl:lwjgl-opengl"
+	implementation "org.lwjgl:lwjgl-opengles"
+	implementation "org.lwjgl:lwjgl-par"
+	implementation "org.lwjgl:lwjgl-stb"
+	implementation "org.lwjgl:lwjgl-vulkan"
     implementation "org.joml:joml:${jomlVersion}"
+    implementation 'com.github.SpaiR:imgui-java:1.89.0'
 
     runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-nuklear::$lwjglNatives"
+
 
     // Add MongoDB Java Driver dependency
+    implementation 'org.slf4j:slf4j-api:2.0.0-alpha1' // SLF4J API
+    implementation 'org.slf4j:slf4j-simple:2.0.0-alpha1' // Simple logging implementation (for console logging)
     implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
 }
 

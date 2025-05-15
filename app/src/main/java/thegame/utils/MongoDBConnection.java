@@ -1,39 +1,51 @@
 package thegame.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.Document;
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import java.util.ArrayList;
+import com.google.gson.Gson;
 
 public class MongoDBConnection implements AutoCloseable {
-
     private static final String CONNECTION_STRING = "mongodb://localhost:27017";
-    private static final String DATABASE_NAME = "theGameDB";
-    private static final String COLLECTION_NAME = "levels";
-
-    private MongoClient mongoClient;
-    private MongoDatabase database;
-    private MongoCollection<Document> collection;
+    private static final String DATABASE_NAME = "theGame";
+    private static final String COLLECTION_NAME = "data";
+    private final MongoClient mongoClient;
+    private final MongoDatabase database;
+    private final MongoCollection<Document> levelsCollection;
 
     public MongoDBConnection() {
         try {
-            mongoClient = MongoClients.create(CONNECTION_STRING);
-            database = mongoClient.getDatabase(DATABASE_NAME);
-            collection = database.getCollection(COLLECTION_NAME);
-            System.out.println("Successfully connected to MongoDB.");
+            
+            this.mongoClient = MongoClients.create(CONNECTION_STRING);
+            this.database = mongoClient.getDatabase(DATABASE_NAME);
+            
+            // Check if collection exists, create if it doesn't
+            boolean collectionExists = database.listCollectionNames()
+                .into(new ArrayList<>())
+                .contains(COLLECTION_NAME);
+                
+            if (!collectionExists) {
+                
+                database.createCollection(COLLECTION_NAME);
+            }
+            
+            this.levelsCollection = database.getCollection(COLLECTION_NAME);
+           
         } catch (Exception e) {
-            System.err.println("Failed to connect to MongoDB: " + e.getMessage());
+            System.err.println("MongoDB Connection Error: " + e.getMessage());
             throw e;
         }
     }
 
-    public List<Document> getLevels() {
-        return collection.find().into(new ArrayList<>());
+    public MongoDatabase getDatabase() {
+        return database;
+    }
+
+    public MongoCollection<Document> getLevelsCollection() {
+        return levelsCollection;
     }
 
     @Override

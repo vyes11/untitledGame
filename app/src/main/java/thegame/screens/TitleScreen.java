@@ -1,50 +1,77 @@
 package thegame.screens;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-
+import imgui.ImGui;
+import imgui.flag.ImGuiWindowFlags;
 import thegame.App;
 import thegame.Screen;
-import thegame.onScreenObjects.Button;
+import thegame.utils.ImGuiUtils;
 
 public class TitleScreen implements Screen {
-    @SuppressWarnings("unused") // Used in button callbacks
     private final App app;
-    private final Button playButton;
 
     public TitleScreen(App app) {
         this.app = app;
-        playButton = new Button(app, "Play Game", -0.3f, -0.1f, 0.6f, 0.2f, () -> {
-            app.setCurrentScreen(new thegame.screens.LevelSelectScreen(app));
-        });
+        System.out.println("TitleScreen initialized");
     }
 
     @Override
     public void render() {
-        // Set background color
-        glClearColor(0.2f, 0.3f, 0.8f, 1.0f); // Blue background
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Create a fullscreen window with no background
+        ImGuiUtils.beginFullScreenWindow("Title Screen");
+        
+        // Calculate positions for title and buttons
+        float windowHeight = ImGui.getWindowHeight();
+        float windowWidth = ImGui.getWindowWidth();
+        
+        // Set cursor position for title text
+        ImGui.setCursorPos(windowWidth * 0.4f, windowHeight * 0.2f);
+        
+        // Display large title text
+        ImGui.pushFont(ImGui.getFont()); // Use default font - you can create larger fonts
+        ImGui.textColored(0.9f, 0.9f, 1.0f, 1.0f, "The Game");
+        ImGui.popFont();
+        
+        // Button dimensions
+        float buttonWidth = 200;
+        float buttonHeight = 50;
+        
+        // Space between buttons
+        ImGui.setCursorPos(windowWidth * 0.4f, windowHeight * 0.4f);
+        
+        // Play Game button
+        if (ImGuiUtils.coloredButton("Play Game", buttonWidth, buttonHeight, 
+                                  0.3f, 0.3f, 0.8f, 0.4f, 0.4f, 0.9f)) {
+            app.setCurrentScreen(new LevelSelectScreen(app));
+        }
+        
+        // Login button
+        ImGui.setCursorPos(windowWidth * 0.4f, windowHeight * 0.5f);
+        if (ImGuiUtils.coloredButton("Login", buttonWidth, buttonHeight,
+                                  0.3f, 0.3f, 0.8f, 0.4f, 0.4f, 0.9f)) {
+            app.setCurrentScreen(new LoginScreen(app));
+        }
 
-        // Draw title text (we'll just use the button for now since text rendering requires more setup)
-        playButton.render();
+        // End the fullscreen window
+        ImGui.end();
     }
 
     @Override
     public void handleMouseClick(double mouseX, double mouseY) {
-        if (playButton.contains((float)mouseX, (float)mouseY)) {
-            playButton.click();
-        }
+        // ImGui handles input automatically
     }
 
     @Override
     public void handleMouseRelease(double mouseX, double mouseY) {
-        // Not needed for title screen
+        // ImGui handles input automatically
     }
 
     @Override
     public void handleMouseMove(double mouseX, double mouseY) {
-        playButton.setHovered(playButton.contains((float)mouseX, (float)mouseY));
+        // ImGui handles input automatically
+    }
+
+    @Override
+    public void handleKeyPress(int key, int action) {
+        // ImGui handles input automatically
     }
 }
