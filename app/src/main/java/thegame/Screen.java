@@ -18,7 +18,7 @@ public interface Screen {
     
     // Required methods
     void render();
-    void handleMouseClick(double mouseX, double mouseY);
+    void handleMouseClick(double mouseX, double mouseY); // Return true if click was handled
     void handleMouseRelease(double mouseX, double mouseY);
     void handleMouseMove(double mouseX, double mouseY);
     void handleKeyPress(int key, int action);

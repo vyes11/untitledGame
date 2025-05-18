@@ -1,5 +1,11 @@
 package thegame.screens;
 
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glRasterPos2f;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -178,6 +184,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void render() {
+        glClearColor(0.2f, 0.8f, 0.2f, 1.0f); // Green background
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui.text("Game Screen");
         float windowWidth = ImGui.getIO().getDisplaySizeX();
         float windowHeight = ImGui.getIO().getDisplaySizeY();
         
@@ -554,4 +563,5 @@ public class GameScreen implements Screen {
     public void handleKeyPress(int key, int action) {
         // Not needed as ImGui handles keyboard input
     }
+    
 }

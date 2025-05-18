@@ -7,11 +7,11 @@
     "java.project.referencedLibraries": [
         "lib/**/*.jar"
     ],
-    "java.jdt.ls.java.home": "C:\\Users\\tara\\.gradle\\jdks\\eclipse_adoptium-21-amd64-windows.2",
+    "java.jdt.ls.java.home": "C:\\Program Files\\Java\\jdk-21",
     "java.configuration.runtimes": [
         {
             "name": "JavaSE-21",
-            "path": "C:\\Users\\tara\\.gradle\\jdks\\eclipse_adoptium-21-amd64-windows.2",
+            "path": "C:\\Program Files\\Java\\jdk-21",
             "default": true
         }
     ]

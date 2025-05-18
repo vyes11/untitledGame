@@ -87,4 +87,8 @@ public class FontRenderer {
         // ImGui handles font cleanup automatically
         fontsLoaded = false;
     }
+
+    public ImFont getFont() {
+        return defaultFont;
+    }
 }
