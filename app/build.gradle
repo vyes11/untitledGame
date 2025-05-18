@@ -37,7 +37,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl"
     implementation "org.lwjgl:lwjgl-assimp"
     implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-nuklear:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-nuklear"
 	implementation "org.lwjgl:lwjgl-openal"
 	implementation "org.lwjgl:lwjgl-opengl"
 	implementation "org.lwjgl:lwjgl-opengles"
@@ -46,6 +46,7 @@ dependencies {
 	implementation "org.lwjgl:lwjgl-vulkan"
     implementation "org.joml:joml:${jomlVersion}"
     implementation 'com.github.SpaiR:imgui-java:1.89.0'
+    implementation 'org.mindrot:jbcrypt:0.4'
 
     runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
@@ -59,6 +60,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1' // SLF4J API
     implementation 'org.slf4j:slf4j-simple:2.0.0-alpha1' // Simple logging implementation (for console logging)
     implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'javax.activation:activation:1.1.1'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

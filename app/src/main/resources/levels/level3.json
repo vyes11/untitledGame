@@ -4,106 +4,112 @@
     "settings": {
         "gridSize": 6,
         "maxMoves": 15,
+        "moveLimits": {
+            "SWAP": 6,
+            "ROTATE": 4,
+            "FLIP_ROW": 3,
+            "FLIP_COLUMN": 2
+        },
         "description": "Simple 2x2 color matching tutorial" 
     },
     "grid": [
         [
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false}
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
         ],
         [
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true}
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
         ]
     ],
     "targetPattern": [
         [
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "isCenter": false}
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
         ],
         [
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true}
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
         ]
     ]
 }

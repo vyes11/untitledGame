@@ -1,97 +1,194 @@
 package thegame.screens;
 
+import static org.lwjgl.opengl.GL11.*;
 import thegame.App;
 import thegame.Screen;
 import thegame.onScreenObjects.Button;
+import thegame.utils.FontRenderer;
 
-import org.joml.Matrix4f;
-import imgui.ImGui;
-import imgui.flag.ImGuiCol;
-import imgui.flag.ImGuiWindowFlags;
-
-import static org.lwjgl.opengl.GL11.*;
-
+/**
+ * The title screen of the game, first screen shown to the user.
+ * Displays the game title, login status, and navigation buttons.
+ */
 public class TitleScreen implements Screen {
     private final App app;
+    private FontRenderer fontRenderer;
+    private Button playButton;
     private Button loginButton;
-    private boolean isHovering = false;
-    private int frameCounter = 0;
+    private Button settingsButton;
+    private Button quitButton;
+    
+    private float backgroundRotation = 0;
+    private double currentMouseX = 0, currentMouseY = 0;
 
+    /**
+     * Constructs a new title screen.
+     * 
+     * @param app The main application instance
+     */
     public TitleScreen(App app) {
-        System.out.println("TitleScreen constructor called!");
         this.app = app;
-
-        // Create a button in the center of the screen
-        float buttonWidth = 200;  // Width in pixels
-        float buttonHeight = 50;  // Height in pixels
-        float buttonX = (App.WINDOW_WIDTH - buttonWidth) / 2;  // Center horizontally
-        float buttonY = (App.WINDOW_HEIGHT - buttonHeight) / 2 + 50;  // Center vertically, slightly lower
         
-        // Login button (gray)
-        loginButton = new Button(buttonX, buttonY, buttonWidth, buttonHeight, 0.5f, 0.5f, 0.5f, "Login");
+        // Initialize font renderer
+        fontRenderer = new FontRenderer();
+        fontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         
-        // Set the projection matrix from App
-        Matrix4f projMatrix = new Matrix4f().ortho2D(0, App.WINDOW_WIDTH, App.WINDOW_HEIGHT, 0);
-        loginButton.setProjectionMatrix(projMatrix);
+        // Create buttons
+        int buttonWidth = 250;
+        int buttonHeight = 50;
+        int centerX = App.WINDOW_WIDTH / 2 - buttonWidth / 2;
+        int startY = 250;
+        int spacing = 60;
+        
+        playButton = new Button(centerX, startY, buttonWidth, buttonHeight, 0.9f, 0.5f, 0.8f, "Play"); // Secondary pink
+        loginButton = new Button(centerX, startY + spacing, buttonWidth, buttonHeight, 0.7f, 0.3f, 0.6f, // Dark pink
+                               app.isLoggedIn() ? "Logout" : "Login");
+        settingsButton = new Button(centerX, startY + spacing * 2, buttonWidth, buttonHeight, 1.0f, 0.4f, 0.7f, "Settings"); // Accent pink
+        quitButton = new Button(centerX, startY + spacing * 3, buttonWidth, buttonHeight, 0.8f, 0.2f, 0.5f, "Quit Game"); // Dark accent
     }
 
+    /**
+     * Renders the title screen, including animated background, 
+     * title text, and buttons.
+     */
     @Override
     public void render() {
-        frameCounter++;
-        // glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // // Render OpenGL content
-        // loginButton.render();
-
-        // // Ensure OpenGL state is ImGui-friendly
-        // glViewport(0, 0, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
-        // glDisable(GL_SCISSOR_TEST);
-        // glDisable(GL_STENCIL_TEST);
-        // glDisable(GL_DEPTH_TEST);
-        // glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        ImGui.showDemoWindow();
-        ImGui.begin("Test Window");
-        ImGui.text("Hello from ImGui!");
-        ImGui.end();
-
-        // Debug info window
-        // ImGui.begin("Debug Info", ImGuiWindowFlags.AlwaysAutoResize);
-        // ImGui.text("Frame: " + frameCounter);
-        // ImGui.end();
+        // Clear screen with a pink background
+        glClearColor(1.0f, 0.7f, 0.9f, 1.0f); // Primary pink
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Draw animated background
+        drawBackground();
+        
+        // Draw title - repositioned even more to the upper-left
+        String title = "FLAULISS AUDITS";
+        float titleX = App.WINDOW_WIDTH * 0.3f; // Position even more to the left (was 0.15f)
+        float titleY = 30; // Position higher up (was 80)
+                
+        // Draw title with custom alignment for the a, u, and last s
+        fontRenderer.renderCenteredText(title, titleX, titleY, 3.0f, 0.8f, 0.2f, 0.5f, 1.0f); // Pink-hued text
+        
+        // Draw login status if logged in
+        if (app.isLoggedIn()) {
+            fontRenderer.renderCenteredText("Logged in as " + app.getUsername(), 
+                                          App.WINDOW_WIDTH / 2, 200, 1.0f, 0.9f, 0.4f, 0.7f, 1.0f); // Accent pink
+        }
+        
+        // Draw buttons
+        playButton.render((float)currentMouseX, (float)currentMouseY);
+        loginButton.render((float)currentMouseX, (float)currentMouseY);
+        settingsButton.render((float)currentMouseX, (float)currentMouseY);
+        quitButton.render((float)currentMouseX, (float)currentMouseY);
+        
+        // Increase rotation for next frame
+        backgroundRotation += 0.05f;
     }
-
+    
+    /**
+     * Draws an animated background with radiating lines.
+     */
+    private void drawBackground() {
+        // Calculate time-based animation
+        float time = (float)System.currentTimeMillis() / 1000.0f;
+        
+        // Draw animated background pattern
+        glPushMatrix();
+        glTranslatef(App.WINDOW_WIDTH / 2, App.WINDOW_HEIGHT / 2, 0);
+        glRotatef(backgroundRotation, 0, 0, 1);
+        
+        // Draw radiating lines
+        int numLines = 24;
+        float radius = Math.max(App.WINDOW_WIDTH, App.WINDOW_HEIGHT) * 0.8f;
+        glLineWidth(1.0f);
+        
+        for (int i = 0; i < numLines; i++) {
+            float angle = (float)i / numLines * (float)Math.PI * 2.0f;
+            float x = (float)Math.cos(angle) * radius;
+            float y = (float)Math.sin(angle) * radius;
+            
+            // Make the lines pulse with time - pink hues
+            float pulseIntensity = 0.3f + 0.2f * (float)Math.sin(time * 2.0f + i * 0.2f);
+            glColor4f(0.9f, 0.5f, 0.8f, pulseIntensity); // Secondary pink
+            
+            glBegin(GL_LINES);
+            glVertex2f(0, 0);
+            glVertex2f(x, y);
+            glEnd();
+        }
+        
+        glPopMatrix();
+    }
+    
+    /**
+     * Handles mouse clicks on buttons and transitions to appropriate screens.
+     * 
+     * @param mouseX The x coordinate of the mouse click
+     * @param mouseY The y coordinate of the mouse click
+     */
     @Override
     public void handleMouseClick(double mouseX, double mouseY) {
-        System.out.println("Mouse clicked at: " + mouseX + ", " + mouseY);
-
-        if (loginButton.isClicked((float) mouseX, (float) mouseY)) {
-            System.out.println("Login button clicked!");
-            app.setCurrentScreen(new LoginScreen(app)); // Transition to LoginScreen
+        float mx = (float)mouseX;
+        float my = (float)mouseY;
+        
+        if (playButton.handleMouseClick(mx, my)) {
+            app.setCurrentScreen(new LevelSelect(app));
+        } else if (loginButton.handleMouseClick(mx, my)) {
+            if (app.isLoggedIn()) {
+                // Logout
+                app.clearLoggedInUser();
+                loginButton.setCaption("Login");
+            } else {
+                // Show login screen
+                app.setCurrentScreen(new LoginScreen(app));
+            }
+        } else if (settingsButton.handleMouseClick(mx, my)) {
+            app.setCurrentScreen(new SettingsScreen(app));
+        } else if (quitButton.handleMouseClick(mx, my)) {
+            System.exit(0);
         }
     }
 
+    /**
+     * Updates the current mouse position.
+     * 
+     * @param mouseX The current x coordinate of the mouse
+     * @param mouseY The current y coordinate of the mouse
+     */
     @Override
     public void handleMouseMove(double mouseX, double mouseY) {
-        // Check if mouse is over the button
-        boolean wasHovering = isHovering;
-        isHovering = loginButton.isClicked((float) mouseX, (float) mouseY);
-        
-        // If hover state changed, print debug info
-        if (wasHovering != isHovering) {
-            System.out.println("Button hover state: " + isHovering);
-        }
+        currentMouseX = mouseX;
+        currentMouseY = mouseY;
     }
 
+    /**
+     * Handles mouse button release events.
+     * 
+     * @param mouseX The x coordinate where the mouse was released
+     * @param mouseY The y coordinate where the mouse was released
+     */
     @Override
     public void handleMouseRelease(double mouseX, double mouseY) {
-        // No additional action needed
+        // Not needed
     }
-
+    
+    /**
+     * Handles keyboard key press events.
+     * 
+     * @param key The key code that was pressed
+     * @param action The action (press, release, etc.)
+     */
     @Override
     public void handleKeyPress(int key, int action) {
-        // No additional action needed
+        // Not needed
+    }
+    
+    /**
+     * Handles character input events.
+     * 
+     * @param codepoint The Unicode code point of the character
+     */
+    @Override
+    public void handleCharInput(int codepoint) {
+        // Not needed
     }
 }

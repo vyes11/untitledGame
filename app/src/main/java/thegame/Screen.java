@@ -22,5 +22,6 @@ public interface Screen {
     void handleMouseRelease(double mouseX, double mouseY);
     void handleMouseMove(double mouseX, double mouseY);
     void handleKeyPress(int key, int action);
+    void handleCharInput(int codepoint); // Add this method for character input
     
 }

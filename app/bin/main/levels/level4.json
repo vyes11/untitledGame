@@ -1,0 +1,70 @@
+{
+  "id": 4,
+  "name": "Number Puzzle",
+  "settings": {
+    "gridSize": 4,
+    "maxMoves": 15,
+    "moveLimits": {
+      "MULTIPLY": 3,
+      "DIVIDE": 3,
+      "ADD": 5,
+      "SUBTRACT": 5,
+      "EDIT_ROW": 2,
+      "EDIT_COLUMN": 2
+    },
+    "difficulty": "medium",
+    "isNumberMode": true
+  },
+  "grid": [
+    [
+      {"value": 1, "editable": true},
+      {"value": 2, "editable": true},
+      {"value": 3, "editable": true},
+      {"value": 4, "editable": true}
+    ],
+    [
+      {"value": 5, "editable": true},
+      {"value": 6, "editable": true},
+      {"value": 7, "editable": true},
+      {"value": 8, "editable": true}
+    ],
+    [
+      {"value": 2, "editable": true},
+      {"value": 3, "editable": true},
+      {"value": 4, "editable": true},
+      {"value": 5, "editable": true}
+    ],
+    [
+      {"value": 6, "editable": true},
+      {"value": 7, "editable": true},
+      {"value": 8, "editable": true},
+      {"value": 1, "editable": true}
+    ]
+  ],
+  "targetPattern": [
+    [
+      {"value": 1, "editable": true},
+      {"value": 2, "editable": true},
+      {"value": 3, "editable": true},
+      {"value": 4, "editable": true}
+    ],
+    [
+      {"value": 2, "editable": true},
+      {"value": 3, "editable": true},
+      {"value": 4, "editable": true},
+      {"value": 5, "editable": true}
+    ],
+    [
+      {"value": 3, "editable": true},
+      {"value": 4, "editable": true},
+      {"value": 5, "editable": true},
+      {"value": 6, "editable": true}
+    ],
+    [
+      {"value": 4, "editable": true},
+      {"value": 5, "editable": true},
+      {"value": 6, "editable": true},
+      {"value": 7, "editable": true}
+    ]
+  ]
+}

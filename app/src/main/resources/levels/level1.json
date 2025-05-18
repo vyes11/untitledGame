@@ -4,27 +4,33 @@
     "settings": {
         "gridSize": 2,
         "maxMoves": 3,
+        "moveLimits": {
+            "SWAP": 3,
+            "ROTATE": 2,
+            "FLIP_ROW": 1,
+            "FLIP_COLUMN": 1
+        },
         "creator": "system",
         "description": "Simple 2x2 color matching tutorial"
     },
     "grid": [
         [
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true}
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true}
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
         ]
     ],
     "targetPattern": [
         [
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "isCenter": true}
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "isCenter": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "isCenter": true}
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
         ]
     ]
 }

@@ -1,48 +1,33 @@
 package thegame;
 
-import org.joml.Matrix4f;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import org.lwjgl.opengl.GL30;
+import org.bson.Document;
 
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
-import thegame.screens.TitleScreen;
-import thegame.utils.FontRenderer;
-
-import java.nio.FloatBuffer;
+import thegame.utils.GLDebugger;
 
 public class App {
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
-    private static final float ASPECT_RATIO = (float) WINDOW_WIDTH / WINDOW_HEIGHT;
+    public static int defaultVao = 0;
 
     private long window;
-    private ImGuiImplGlfw imGuiGlfw;
-    private ImGuiImplGl3 imGuiGl3;
+    private boolean lastMousePressed = false;
     private Screen currentScreen;
-    private FontRenderer fontRenderer;
-    private boolean isLoggedIn = false;
-
-    private int vaoId;
-    private int vboId;
-    private int shaderProgram;
-
-    private Matrix4f projectionMatrix;
-    private int projectionMatrixLocation;
+    private boolean loggedIn = false; // Track login state
+    
+    // User data cache
+    private Document userData = null;
+    private String username = null;
 
     public void run() {
-        System.out.println("LWJGL " + Version.getVersion());
+        System.out.println("LWJGL " + org.lwjgl.Version.getVersion());
         init();
         loop();
         cleanup();
@@ -57,16 +42,18 @@ public class App {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
-        // Configure GLFW
+        // Configure OpenGL core profile for compatibility
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        
+        // Use compatibility profile instead of core for more reliable immediate mode
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // Use compatibility profile
 
         // Create the window
-        window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL with ImGui Support", NULL, NULL);
+        window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Modern OpenGL", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -80,263 +67,195 @@ public class App {
 
         // Initialize OpenGL capabilities
         GL.createCapabilities();
-
-        // Initialize ImGui
-        ImGui.createContext();
-        ImGuiIO io = ImGui.getIO();
-        io.setIniFilename(null);
-
-        // Add a default font (or your custom font)
-        io.getFonts().addFontDefault();
-
-        // Build the font atlas
-        io.getFonts().build();
-
-        // Check if fonts were loaded
         
-        System.out.println("ImGui fonts loaded: " + (ImGui.getIO().getFonts().isBuilt() ? "Yes" : "No"));
+        // Enable OpenGL debugging
+        GLDebugger.setDebugMode(true);
+        GLDebugger.clearErrors();
+        System.out.println("OpenGL Debugging enabled");
 
-
-        // Optional: Set global font scaling
-        io.setFontGlobalScale(1.0f);
-
-        // Set the initial screen
-        currentScreen = new TitleScreen(this);
-
-        // Set up callbacks
-        setupCallbacks();
-
-        // Initialize OpenGL objects
-        initOpenGL();
+        // Set the initial screen (TitleScreen)
+        setCurrentScreen(new thegame.screens.TitleScreen(this));
         
-        imGuiGlfw = new ImGuiImplGlfw();
-        imGuiGl3 = new ImGuiImplGl3();
-        imGuiGlfw.init(window, true);
-        imGuiGl3.init("#version 330 core");
-    }
+        App.defaultVao = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(defaultVao);
+        GLDebugger.checkError("After default VAO creation");
 
-    private void initOpenGL() {
-        // After creating OpenGL context
-        System.out.println("OpenGL version: " + glGetString(GL_VERSION));
-        System.out.println("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
-        System.out.println("Vendor: " + glGetString(GL_VENDOR));
-        System.out.println("Renderer: " + glGetString(GL_RENDERER));
-        
-        // We already know we're using Core Profile from our window hints
-        System.out.println("Using Core Profile: Yes (set via GLFW_OPENGL_CORE_PROFILE)");
-        
-        // Set up the projection matrix
-        setupProjectionMatrix();
-
-        // Create and compile the shader program
-        createShaderProgram();
-
-        // Define vertices for a triangle (example)
-        float[] vertices = {
-            -0.5f, -0.5f, 0.0f, // Bottom-left
-             0.5f, -0.5f, 0.0f, // Bottom-right
-             0.0f,  0.5f, 0.0f  // Top-center
-        };
-
-        // Create a VAO
-        vaoId = glGenVertexArrays();
-        glBindVertexArray(vaoId);
-
-        // Create a VBO
-        vboId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-
-        // Define vertex attributes
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glEnableVertexAttribArray(0);
-
-        // Unbind the VAO and VBO
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
-
-    private void setupProjectionMatrix() {
-        // Create an orthographic projection matrix
-        projectionMatrix = new Matrix4f().ortho2D(0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-
-        // Pass the projection matrix to the shader
-        FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
-        projectionMatrix.get(matrixBuffer);
-
-        glUseProgram(shaderProgram); // Use the shader program
-        glUniformMatrix4fv(projectionMatrixLocation, false, matrixBuffer);
-        glUseProgram(0); // Unbind the shader program
-    }
-
-    private void loop() {
-        while (!glfwWindowShouldClose(window)) {
-            // Poll events first (mouse, keyboard, etc.)
-            glfwPollEvents();
-            
-            // Clear framebuffer 
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            // Start ImGui frame
-            glViewport(0, 0, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
-            glDisable(GL_SCISSOR_TEST);
-            glDisable(GL_STENCIL_TEST);
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glUseProgram(0);
-            glBindVertexArray(0);
-            imGuiGlfw.newFrame();
-            ImGui.newFrame();
-            
-            ImGuiIO io = ImGui.getIO();
-            System.out.println("ImGui DisplaySize: " + io.getDisplaySizeX() + " x " + io.getDisplaySizeY());
-            System.out.println("ImGui FramebufferScale: " + io.getDisplayFramebufferScaleX() + " x " + io.getDisplayFramebufferScaleY());
-            
-            // Render current screen
-            if (currentScreen != null) {
-                currentScreen.render();
+        // Set up input callbacks
+        glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+            if (button == GLFW_MOUSE_BUTTON_LEFT) {
+                double[] xpos = new double[1];
+                double[] ypos = new double[1];
+                glfwGetCursorPos(window, xpos, ypos);
+                
+                if (action == GLFW_PRESS) {
+                    if (currentScreen != null) {
+                        currentScreen.handleMouseClick(xpos[0], ypos[0]);
+                    }
+                } else if (action == GLFW_RELEASE) {
+                    if (currentScreen != null) {
+                        currentScreen.handleMouseRelease(xpos[0], ypos[0]);
+                    }
+                }
             }
-            
-            // End ImGui frame
-            ImGui.render();
-            imGuiGl3.renderDrawData(ImGui.getDrawData());
-            
-            // Swap buffers
-            glfwSwapBuffers(window);
-        }
-    }
-
-    private void setupCallbacks() {
-        glfwSetKeyCallback(window, (win, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                glfwSetWindowShouldClose(win, true);
-            }
-            
+        });
+        
+        // Add key callback
+        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (currentScreen != null) {
                 currentScreen.handleKeyPress(key, action);
             }
         });
-
-        glfwSetMouseButtonCallback(window, (win, button, action, mods) -> {
-            System.out.println("Mouse button pressed: " + button + ", action: " + action);
-            
-            // Get cursor position
-            double[] xpos = new double[1];
-            double[] ypos = new double[1];
-            glfwGetCursorPos(win, xpos, ypos);
-            System.out.println("Mouse position: " + xpos[0] + ", " + ypos[0]);
-            
-            // Check if ImGui wants the mouse
-            boolean imguiWantsMouse = ImGui.getIO().getWantCaptureMouse();
-            System.out.println("ImGui wants mouse: " + imguiWantsMouse);
-            
-            // Always pass to your screen handler for debugging (remove the ImGui check)
-            if (currentScreen != null && action == GLFW_PRESS) {
-                currentScreen.handleMouseClick(xpos[0], ypos[0]);
-            }
-        });
         
-        // Add mouse move callback for hover effects
-        glfwSetCursorPosCallback(window, (win, xpos, ypos) -> {
-            if (ImGui.getIO().getWantCaptureMouse()) {
-                return;
-            }
+        // Add character callback for text input
+        glfwSetCharCallback(window, (window, codepoint) -> {
             if (currentScreen != null) {
-                currentScreen.handleMouseMove(xpos, ypos);
+                currentScreen.handleCharInput(codepoint);
             }
         });
     }
 
+    public void setCurrentScreen(Screen screen) {
+        try {
+            // Clean up the previous screen if it implements AutoCloseable
+            if (currentScreen instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable)currentScreen).close();
+                } catch (Exception e) {
+                    System.err.println("Error closing previous screen: " + e.getMessage());
+                }
+            }
+            
+            // Before switching screens, ensure we have a valid OpenGL context
+            if (GL.getCapabilities() == null || !GL.getCapabilities().OpenGL11) {
+                System.err.println("WARNING: OpenGL context is not valid before screen switch!");
+                // Try to restore context if lost
+                glfwMakeContextCurrent(window);
+                GL.createCapabilities();
+            }
+            
+            this.currentScreen = screen;
+            
+            // Log screen transition for debugging
+            System.out.println("Screen changed to: " + screen.getClass().getSimpleName());
+        } catch (Exception e) {
+            System.err.println("Error changing screen: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loop() {
+        while (!glfwWindowShouldClose(window)) {
+            try {
+                // Poll for window events
+                glfwPollEvents();
+                
+                // Check context before rendering - more robust checking
+                boolean contextValid = GL.getCapabilities() != null && 
+                                     GL.getCapabilities().OpenGL11;
+                
+                if (!contextValid) {
+                    System.err.println("WARNING: Lost OpenGL context, attempting to restore...");
+                    glfwMakeContextCurrent(window);
+                    GL.createCapabilities();
+                    
+                    if (GL.getCapabilities() == null) {
+                        System.err.println("CRITICAL: Failed to restore OpenGL context!");
+                        continue; // Skip this frame, try again next time
+                    }
+                    System.out.println("OpenGL context restored successfully");
+                }
+
+                // Clear the screen
+                GL11.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+                
+                // Enable alpha blending for transparent elements
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+                // Render current screen inside try-catch to prevent crashing
+                if (currentScreen != null) {
+                    try {
+                        currentScreen.render();
+                    } catch (Exception e) {
+                        System.err.println("FATAL ERROR in screen rendering: " + e.getMessage());
+                        e.printStackTrace();
+                        
+                        // Try to recover by reverting to title screen
+                        if (!(currentScreen instanceof thegame.screens.TitleScreen)) {
+                            System.out.println("Attempting recovery by returning to title screen");
+                            setCurrentScreen(new thegame.screens.TitleScreen(this));
+                        }
+                    }
+                }
+                
+                GL11.glDisable(GL11.GL_BLEND);
+                
+                // Check for OpenGL errors after rendering
+                int errorCode = GL11.glGetError();
+                if (errorCode != GL11.GL_NO_ERROR) {
+                    System.err.println("OpenGL error after rendering: " + errorCode);
+                }
+
+                // Swap buffers
+                glfwSwapBuffers(window);
+            } catch (Exception e) {
+                System.err.println("Error in main loop: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void cleanup() {
-        // Cleanup OpenGL objects
-        glDeleteBuffers(vboId);
-        glDeleteVertexArrays(vaoId);
-
-        // Cleanup ImGui
-        imGuiGl3.shutdown();
-        imGuiGlfw.shutdown();
-        ImGui.destroyContext();
-
-        // Free the window callbacks and destroy the window
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
-
-        // Terminate GLFW
         glfwTerminate();
         glfwSetErrorCallback(null).free();
     }
 
-    private void createShaderProgram() {
-        // Vertex shader source
-        String vertexShaderSource = """
-            #version 330 core
-            layout(location = 0) in vec3 aPos;
-
-            uniform mat4 projection;
-
-            void main() {
-                gl_Position = projection * vec4(aPos, 1.0);
-            }
-        """;
-
-        // Fragment shader source
-        String fragmentShaderSource = """
-            #version 330 core
-            out vec4 fragColor;
-
-            void main() {
-                fragColor = vec4(1.0, 0.5, 0.2, 1.0); // Orange color
-            }
-        """;
-
-        // Compile vertex shader
-        int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, vertexShaderSource);
-        glCompileShader(vertexShader);
-        checkShaderCompileStatus(vertexShader);
-
-        // Compile fragment shader
-        int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, fragmentShaderSource);
-        glCompileShader(fragmentShader);
-        checkShaderCompileStatus(fragmentShader);
-
-        // Link shaders into a program
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-        checkProgramLinkStatus(shaderProgram);
-
-        // Clean up shaders (no longer needed after linking)
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+    public Screen getCurrentScreen() {
+        return currentScreen;
     }
 
-    private void checkShaderCompileStatus(int shader) {
-        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-            throw new RuntimeException("Shader compilation failed: " + glGetShaderInfoLog(shader));
-        }
+    public long getWindow() {
+        return window;
     }
 
-    private void checkProgramLinkStatus(int program) {
-        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-            throw new RuntimeException("Program linking failed: " + glGetProgramInfoLog(program));
-        }
+    // Add methods to manage user data
+    public void setLoggedInUser(Document userData) {
+        this.userData = userData;
+        this.username = userData.getString("username");
+        this.loggedIn = true;
+        System.out.println("User logged in: " + username);
     }
-
-    public void setCurrentScreen(Screen screen) {
-        this.currentScreen = screen;
+    
+    public void clearLoggedInUser() {
+        this.userData = null;
+        this.username = null;
+        this.loggedIn = false;
+        System.out.println("User logged out");
     }
-
-    public boolean isLoggedIn() {
-        return isLoggedIn;
+    
+    public Document getUserData() {
+        return userData;
     }
-
+    
+    public String getUsername() {
+        return username;
+    }
+    
     public void setLoggedIn(boolean loggedIn) {
-        this.isLoggedIn = loggedIn;
+        if (!loggedIn) {
+            clearLoggedInUser();
+        } else if (this.userData == null) {
+            // If setting to logged in but no user data, create minimal data
+            this.loggedIn = true;
+            System.out.println("Warning: Setting logged in without user data");
+        }
+    }
+    
+    public boolean isLoggedIn() {
+        return loggedIn;
     }
 
     public static void main(String[] args) {
