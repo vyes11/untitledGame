@@ -1,0 +1,90 @@
+{
+    "id": 16,
+    "name": "Advanced Numbers",
+    "settings": {
+        "gridSize": 5,
+        "maxMoves": 10,
+        "moveLimits": {
+            "SWAP": 4,
+            "ROTATE": 6,
+            "FLIP_ROW": 3,
+            "FLIP_COLUMN": 3
+        },
+        "difficulty": "hard",
+        "isNumberMode": true
+    },
+    "grid": [
+        [
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true}
+        ],
+        [
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 9, "editable": true},
+            {"value": 1, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": false},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true}
+        ],
+        [
+            {"value": 7, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 9, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"value": 1, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 3, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 4, "editable": false},
+            {"value": 9, "editable": true},
+            {"value": 5, "editable": true}
+        ],
+        [
+            {"value": 4, "editable": true},
+            {"value": 9, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 6, "editable": true}
+        ],
+        [
+            {"value": 5, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 7, "editable": true}
+        ]
+    ]
+}

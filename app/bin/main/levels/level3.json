@@ -1,115 +1,49 @@
 {
     "id" : 3,
-    "name": "Top Row Lock",
+    "name": "Basic Triangle",
     "settings": {
-        "gridSize": 6,
-        "maxMoves": 15,
+        "gridSize": 3,
+        "maxMoves": 4,
         "moveLimits": {
-            "SWAP": 6,
-            "ROTATE": 4,
-            "FLIP_ROW": 3,
-            "FLIP_COLUMN": 2
+            "SWAP": 4,
+            "ROTATE": 1,
+            "FLIP_ROW": 1,
+            "FLIP_COLUMN": 1
         },
-        "description": "Simple 2x2 color matching tutorial" 
+        "difficulty": "easy"
     },
     "grid": [
         [
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
-        ],
-        [
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
-        ],
-        [
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
             {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
             {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
             {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
-        ],
-        [
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true}
-        ],
-        [
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
             {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
             {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
             {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ],
+        [
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false},
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false},
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false}
         ]
     ],
     "targetPattern": [
         [
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
-            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
         ],
         [
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
             {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
             {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
             {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
         ],
         [
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true}
-        ],
-        [
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
-        ],
-        [
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
-        ],
-        [
-            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
-            {"red": 0.0, "green": 1.0, "blue": 1.0, "editable": true},
-            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false},
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false},
+            {"red": 0.3, "green": 0.3, "blue": 0.3, "editable": false}
         ]
     ]
 }

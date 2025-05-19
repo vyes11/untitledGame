@@ -1,0 +1,50 @@
+{
+    "id": 11,
+    "name": "Number Intro",
+    "settings": {
+        "gridSize": 3,
+        "maxMoves": 5,
+        "moveLimits": {
+            "SWAP": 3,
+            "ROTATE": 2,
+            "FLIP_ROW": 2,
+            "FLIP_COLUMN": 2
+        },
+        "difficulty": "easy",
+        "isNumberMode": true
+    },
+    "grid": [
+        [
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true}
+        ],
+        [
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true}
+        ],
+        [
+            {"value": 7, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 9, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"value": 1, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 7, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 8, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 9, "editable": true}
+        ]
+    ]
+}

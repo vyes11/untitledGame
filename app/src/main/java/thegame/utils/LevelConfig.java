@@ -28,7 +28,32 @@ public class LevelConfig {
     private boolean isCustomLevel;
     private String description;
     private boolean isNumberMode;
+    
+    // Add statistics field (for online levels only)
+    private Statistics statistics;
 
+    // Add isVerified field
+    private boolean isVerified;
+
+    // Statistics class for tracking plays and likes
+    public static class Statistics {
+        private int timePlayed;
+        private int likes;
+        
+        public Statistics(int timePlayed, int likes) {
+            this.timePlayed = timePlayed;
+            this.likes = likes;
+        }
+        
+        public int getTimePlayed() {
+            return timePlayed;
+        }
+        
+        public int getLikes() {
+            return likes;
+        }
+    }
+    
     // Define move types enum
     public enum MoveType {
         SWAP,        // Swapping two adjacent cells
@@ -239,17 +264,35 @@ public class LevelConfig {
         }
     }
 
-    // Getters
+    /**
+     * Gets the level name.
+     * @return The name of the level
+     */
     public String getName() { return name; }
+
+    /**
+     * Gets the initial grid configuration.
+     * @return The 2D array representing the initial state
+     */
     public Cell[][] getGrid() { return grid; }
+
+    /**
+     * Gets the target pattern configuration.
+     * @return The 2D array representing the target state
+     */
     public Cell[][] getTargetPattern() { return targetPattern; }
 
-    // Add getter for settings
+    /**
+     * Gets the level settings.
+     * @return The settings object, or default settings if none are defined
+     */
     public Settings getSettings() { 
         return settings != null ? settings : new Settings(); // Return default settings if null
     }
 
-    // Add debug method to verify color values
+    /**
+     * Prints debugging information about the grid to the console.
+     */
     public void debugPrintGrid() {
         if (grid == null) {
             System.out.println("Grid is null!");
@@ -273,7 +316,11 @@ public class LevelConfig {
         
         private int maxRowEdits = 3;
         private int maxColEdits = 3;
-
+        private Statistics statistics;
+        
+        // Add field for verification status
+        private boolean isVerified = false;
+        
         public Builder() {
             level = new LevelConfig();
             level.createdAt = System.currentTimeMillis();
@@ -342,6 +389,17 @@ public class LevelConfig {
             return this;
         }
 
+        public Builder withStatistics(Statistics statistics) {
+            this.statistics = statistics;
+            return this;
+        }
+
+        // New method to set verification status
+        public Builder withVerified(boolean verified) {
+            this.isVerified = verified;
+            return this;
+        }
+
         // Add a getter for grid
         public Cell[][] getGrid() {
             return this.grid;
@@ -371,16 +429,33 @@ public class LevelConfig {
                 level.settings.setMaxColEdits(maxColEdits);
             }
             
-            validateLevel();
-            return level;
+            LevelConfig config = new LevelConfig();
+            config.id = level.id;
+            config.name = level.name;
+            config.grid = level.grid;
+            config.targetPattern = level.targetPattern;
+            config.creator = level.creator;
+            config.createdAt = level.createdAt;
+            config.isCustomLevel = level.isCustomLevel;
+            config.description = level.description;
+            config.isNumberMode = level.isNumberMode;
+            config.settings = level.settings;
+            // Only set statistics if provided (for online levels)
+            config.statistics = this.statistics;
+            // Set verification status
+            config.isVerified = this.isVerified;
+            
+            validateLevel(config);
+            return config;
         }
 
-        private void validateLevel() {
-            if (level.id <= 0) throw new IllegalStateException("Level ID must be positive");
-            if (level.name == null) throw new IllegalStateException("Level name is required");
-            if (level.grid == null) throw new IllegalStateException("Grid is required");
-            if (level.targetPattern == null) throw new IllegalStateException("Target pattern is required");
-            if (level.settings == null) throw new IllegalStateException("Settings are required");
+        private void validateLevel(LevelConfig config) {
+            if (config.id <= 0) throw new IllegalStateException("Level ID must be positive");
+            if (config.name == null) throw new IllegalStateException("Level name is required");
+            if (config.grid == null) throw new IllegalStateException("Grid is required");
+            if (config.targetPattern == null) throw new IllegalStateException("Target pattern is required");
+            if (config.settings == null) throw new IllegalStateException("Settings are required");
+            // Don't validate statistics since it's optional for online levels
         }
     }
 
@@ -397,6 +472,8 @@ public class LevelConfig {
         if (!doc.containsKey("creator")) {
             doc.append("creator", "anonymous");
         }
+        // Add verification status
+        doc.append("isVerified", isVerified);
         
         return doc;
     }
@@ -447,8 +524,37 @@ public class LevelConfig {
         return 10000 + (int)(Math.random() * 90000);
     }
 
-    // Add getters and setters for new fields
+    /**
+     * Checks if the level is a custom-created level.
+     * @return true if the level is custom, false if it's built-in
+     */
     public boolean isCustomLevel() { return isCustomLevel; }
+
+    /**
+     * Gets the level description.
+     * @return The level description
+     */
     public String getDescription() { return description; }
+
+    /**
+     * Sets the level description.
+     * @param description The description to set
+     */
     public void setDescription(String description) { this.description = description; }
+
+    /**
+     * Gets the level statistics.
+     * @return The statistics object, or null if not available
+     */
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
+    /**
+     * Checks if the level has been verified as solvable.
+     * @return true if the level is verified, false otherwise
+     */
+    public boolean isVerified() {
+        return isVerified;
+    }
 }

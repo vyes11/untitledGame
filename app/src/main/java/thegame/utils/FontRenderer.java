@@ -20,6 +20,10 @@ import java.nio.file.StandardOpenOption;
 
 import thegame.App;
 
+/**
+ * A utility class for rendering TrueType fonts using STB TrueType.
+ * Supports loading and rendering text with various sizes and colors.
+ */
 public class FontRenderer {
     // Increase bitmap size for better quality
     private static final int BITMAP_W = 1024;
@@ -31,85 +35,118 @@ public class FontRenderer {
     private STBTTBakedChar.Buffer cdata;
     private int vao, vbo, shaderProgram;
 
-    public void loadFont(String fontPath) {
-        try {
-            ByteBuffer ttf = ioResourceToByteBuffer(fontPath, 160 * 1024);
-            // Allocate more characters to support extended ASCII
-            cdata = STBTTBakedChar.malloc(128);
-            ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H);
+    /**
+     * Loads a TrueType font from a classpath resource.
+     *
+     * @param resourcePath The path to the font resource (e.g., "/fonts/myfont.ttf")
+     */
+    /**
+ * Loads a TrueType font from a file or classpath resource.
+ *
+ * @param path The path to the font file or resource
+ *            (use prefix "/" for classpath resources, e.g. "/fonts/myfont.ttf")
+ */
+public void loadFont(String path) {
+    try {
+        ByteBuffer ttf = ioResourceToByteBuffer(path, 160 * 1024);
+        // Allocate more characters to support extended ASCII
+        cdata = STBTTBakedChar.malloc(128);
+        ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H);
 
-            // Bake the font with better parameters
-            int result = STBTruetype.stbtt_BakeFontBitmap(ttf, FONT_HEIGHT, bitmap, BITMAP_W, BITMAP_H, 32, cdata);
-            if (result <= 0) {
-                throw new RuntimeException("Font baking failed with result: " + result);
-            }
-
-            fontTextureID = GL11.glGenTextures();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontTextureID);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RED, BITMAP_W, BITMAP_H, 0, GL11.GL_RED, GL11.GL_UNSIGNED_BYTE, bitmap);
-            
-            // Use better texture filtering for smoother text
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
-            GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-
-            // Unbind
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-
-            // Setup VAO/VBO for a quad (6 vertices per character)
-            vao = GL30.glGenVertexArrays();
-            vbo = GL15.glGenBuffers();
-            GL30.glBindVertexArray(vao);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-            // 4 floats per vertex: x, y, u, v
-            GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, 4 * Float.BYTES, 0);
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
-            GL20.glEnableVertexAttribArray(1);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-            GL30.glBindVertexArray(0);
-
-            // Simple shader for font rendering
-            String vertSrc =
-                "#version 330 core\n" +
-                "layout(location = 0) in vec2 aPos;\n" +
-                "layout(location = 1) in vec2 aUV;\n" +
-                "out vec2 vUV;\n" +
-                "uniform vec2 screenSize;\n" +
-                "void main() {\n" +
-                "    vec2 pos = aPos / screenSize * 2.0 - 1.0;\n" +
-                "    gl_Position = vec4(pos.x, -pos.y, 0.0, 1.0);\n" +
-                "    vUV = aUV;\n" +
-                "}\n";
-            String fragSrc =
-                "#version 330 core\n" +
-                "in vec2 vUV;\n" +
-                "out vec4 FragColor;\n" +
-                "uniform sampler2D fontTex;\n" +
-                "uniform vec4 color;\n" +
-                "void main() {\n" +
-                "    float alpha = texture(fontTex, vUV).r;\n" +
-                "    // Apply gamma correction for smoother edges\n" +
-                "    alpha = pow(alpha, 1.0/2.2);\n" +
-                "    // Use pre-multiplied alpha for better blending\n" +
-                "    FragColor = vec4(color.rgb * alpha, alpha * color.a);\n" +
-                "}\n";
-
-            int vertShader = compileShader(GL20.GL_VERTEX_SHADER, vertSrc);
-            int fragShader = compileShader(GL20.GL_FRAGMENT_SHADER, fragSrc);
-            shaderProgram = GL20.glCreateProgram();
-            GL20.glAttachShader(shaderProgram, vertShader);
-            GL20.glAttachShader(shaderProgram, fragShader);
-            GL20.glLinkProgram(shaderProgram);
-            GL20.glDeleteShader(vertShader);
-            GL20.glDeleteShader(fragShader);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load font: " + fontPath, e);
+        // Bake the font with better parameters
+        int result = STBTruetype.stbtt_BakeFontBitmap(ttf, FONT_HEIGHT, bitmap, BITMAP_W, BITMAP_H, 32, cdata);
+        if (result <= 0) {
+            throw new RuntimeException("Font baking failed with result: " + result);
         }
+
+        // Create and configure texture
+        fontTextureID = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontTextureID);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RED, BITMAP_W, BITMAP_H, 0, GL11.GL_RED, GL11.GL_UNSIGNED_BYTE, bitmap);
+        
+        // Use better texture filtering for smoother text
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+
+        // Unbind texture
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        // Setup VAO/VBO for a quad
+        vao = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vao);
+        
+        vbo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, 24 * 4, GL15.GL_DYNAMIC_DRAW);
+        
+        // Position attribute
+        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, 4 * 4, 0);
+        GL20.glEnableVertexAttribArray(0);
+        
+        // Texture coordinate attribute
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 4 * 4, 2 * 4);
+        GL20.glEnableVertexAttribArray(1);
+        
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        GL30.glBindVertexArray(0);
+        
+        // Create shader program
+        initShaders();
+
+    } catch (IOException e) {
+        throw new RuntimeException("Failed to load font: " + path, e);
     }
+}
+
+private void initShaders() {
+    // Vertex shader: transforms coordinates and passes texture coordinates
+    String vertexShaderSrc = 
+        "#version 330 core\n" +
+        "layout (location = 0) in vec2 position;\n" +
+        "layout (location = 1) in vec2 texCoord;\n" +
+        "out vec2 TexCoord;\n" +
+        "uniform vec2 screenSize;\n" +
+        "void main() {\n" +
+        "    vec2 pos = position;\n" +
+        "    pos.x = pos.x / screenSize.x * 2.0 - 1.0;\n" +
+        "    pos.y = 1.0 - pos.y / screenSize.y * 2.0;\n" +
+        "    gl_Position = vec4(pos, 0.0, 1.0);\n" +
+        "    TexCoord = texCoord;\n" +
+        "}\n";
+
+    // Fragment shader: samples texture and applies color
+    String fragmentShaderSrc = 
+        "#version 330 core\n" +
+        "in vec2 TexCoord;\n" +
+        "out vec4 FragColor;\n" +
+        "uniform sampler2D fontTex;\n" +
+        "uniform vec4 color;\n" +
+        "void main() {\n" +
+        "    float alpha = texture(fontTex, TexCoord).r;\n" +
+        "    FragColor = vec4(color.rgb, color.a * alpha);\n" +
+        "}\n";
+
+    // Compile and link shaders
+    int vertexShader = compileShader(GL20.GL_VERTEX_SHADER, vertexShaderSrc);
+    int fragmentShader = compileShader(GL20.GL_FRAGMENT_SHADER, fragmentShaderSrc);
+    
+    shaderProgram = GL20.glCreateProgram();
+    GL20.glAttachShader(shaderProgram, vertexShader);
+    GL20.glAttachShader(shaderProgram, fragmentShader);
+    GL20.glLinkProgram(shaderProgram);
+    
+    if (GL20.glGetProgrami(shaderProgram, GL20.GL_LINK_STATUS) == 0) {
+        throw new RuntimeException("Shader program linking failed: " + 
+                                   GL20.glGetProgramInfoLog(shaderProgram));
+    }
+    
+    // Clean up shader objects (they're linked to the program now)
+    GL20.glDeleteShader(vertexShader);
+    GL20.glDeleteShader(fragmentShader);
+}
 
     private int compileShader(int type, String src) {
         int shader = GL20.glCreateShader(type);
@@ -126,6 +163,18 @@ public class FontRenderer {
         renderText(text, x, y, scale, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 
+    /**
+     * Renders text at the specified position with the specified color.
+     *
+     * @param text The text to render
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @param scale The scale of the text
+     * @param r The red component of the text color (0-1)
+     * @param g The green component of the text color (0-1)
+     * @param b The blue component of the text color (0-1)
+     * @param a The alpha component of the text color (0-1)
+     */
     public void renderText(String text, float x, float y, float scale, float r, float g, float b, float a) {
         if (cdata == null) return;
         
@@ -190,18 +239,43 @@ public class FontRenderer {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    // Add overload with color parameters for consistent API
-    public void renderCenteredText(String text, float centerX, float centerY, float scale, 
-                                  float r, float g, float b, float a) {
+    /**
+     * Renders text centered at the specified position.
+     *
+     * @param text The text to render
+     * @param x The x-coordinate of the center of the text
+     * @param y The y-coordinate
+     * @param scale The scale of the text
+     */
+    public void renderCenteredText(String text, float x, float y, float scale) {
+        renderCenteredText(text, x, y, scale, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    /**
+     * Renders text centered at the specified position with the specified color.
+     *
+     * @param text The text to render
+     * @param x The x-coordinate of the center of the text
+     * @param y The y-coordinate
+     * @param scale The scale of the text
+     * @param r The red component of the text color (0-1)
+     * @param g The green component of the text color (0-1)
+     * @param b The blue component of the text color (0-1)
+     * @param a The alpha component of the text color (0-1)
+     */
+    public void renderCenteredText(String text, float x, float y, float scale, float r, float g, float b, float a) {
         float width = getTextWidth(text, scale);
         float height = getTextHeight(scale);
-        renderText(text, centerX - width / 2, centerY - height / 2, scale, r, g, b, a);
+        renderText(text, x - width / 2, y - height / 2, scale, r, g, b, a);
     }
 
-    public void renderCenteredText(String text, float centerX, float centerY, float scale) {
-        renderCenteredText(text, centerX, centerY, scale, 1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
+    /**
+     * Gets the width of the specified text at the specified scale.
+     *
+     * @param text The text to measure
+     * @param scale The scale of the text
+     * @return The width of the text in pixels
+     */
     public float getTextWidth(String text, float scale) {
         if (cdata == null) return 0;
         float width = 0;
@@ -219,10 +293,19 @@ public class FontRenderer {
         return width * scale;
     }
 
+    /**
+     * Gets the height of the text at the specified scale.
+     *
+     * @param scale The scale of the text
+     * @return The height of the text in pixels
+     */
     public float getTextHeight(float scale) {
         return FONT_HEIGHT * scale;
     }
 
+    /**
+     * Cleans up resources used by the font renderer.
+     */
     public void cleanup() {
         if (fontTextureID != 0) {
             GL11.glDeleteTextures(fontTextureID);
@@ -237,13 +320,41 @@ public class FontRenderer {
         if (shaderProgram != 0) GL20.glDeleteProgram(shaderProgram);
     }
 
-    // Utility to load a file into a ByteBuffer
+    // Replace the existing ioResourceToByteBuffer method with this version
     private static ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize) throws IOException {
-        try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(resource), StandardOpenOption.READ)) {
-            ByteBuffer buffer = BufferUtils.createByteBuffer((int) fc.size() + 1);
-            while (fc.read(buffer) != -1) ;
-            buffer.flip();
-            return buffer;
+        ByteBuffer buffer;
+        
+        // Check if resource path starts with "/" for class resource loading
+        if (resource.startsWith("/")) {
+            // Load from classpath resource
+            try (java.io.InputStream is = FontRenderer.class.getResourceAsStream(resource)) {
+                if (is == null) {
+                    throw new IOException("Resource not found: " + resource);
+                }
+                
+                // Read resource data into a byte array
+                java.io.ByteArrayOutputStream os = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int read;
+                while ((read = is.read(buf)) != -1) {
+                    os.write(buf, 0, read);
+                }
+                
+                // Convert to ByteBuffer
+                byte[] bytes = os.toByteArray();
+                buffer = BufferUtils.createByteBuffer(bytes.length + 1);
+                buffer.put(bytes);
+                buffer.flip();
+            }
+        } else {
+            // Original file loading code (kept for backward compatibility)
+            try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(resource), StandardOpenOption.READ)) {
+                buffer = BufferUtils.createByteBuffer((int) fc.size() + 1);
+                while (fc.read(buffer) != -1);
+                buffer.flip();
+            }
         }
+        
+        return buffer;
     }
 }

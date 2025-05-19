@@ -4,17 +4,30 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+/**
+ * Utility class for sending emails.
+ * Used primarily for account verification.
+ */
 public class EmailSender {
     private static final String FROM_EMAIL = "levianoxwijaya@gmail.com"; // Change to your email
-    private static final String FROM_PASSWORD = "iavh ggpe kfex rvtl"; // Use app password for better security
+    private static final String FROM_PASSWORD = "ycvf mskg yrwb cinn"; // Use app password for better security
     
+    /**
+     * Sends a verification email with a code to the specified address.
+     *
+     * @param toEmail The email address to send the verification code to
+     * @param verificationCode The verification code to include in the email
+     * @return true if the email was sent successfully, false otherwise
+     */
     public static boolean sendVerificationEmail(String toEmail, String verificationCode) {
         try {
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com"); // Use your SMTP server
+            props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.port", "587");
+            props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+            props.put("mail.smtp.timeout", "10000");
             
             Session session = Session.getInstance(props, new Authenticator() {
                 @Override
@@ -38,10 +51,13 @@ public class EmailSender {
             message.setText(emailContent);
             
             Transport.send(message);
-            System.out.println("Verification email sent to " + toEmail);
             return true;
         } catch (MessagingException e) {
-            System.err.println("Failed to send verification email: " + e.getMessage());
+            if (e.getCause() instanceof java.net.ConnectException) {
+                System.err.println("Network error: Unable to connect to email server. Please check your internet connection or firewall.");
+            } else {
+                System.err.println("Failed to send verification email: " + e.getMessage());
+            }
             e.printStackTrace();
             return false;
         }

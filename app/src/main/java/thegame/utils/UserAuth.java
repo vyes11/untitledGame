@@ -5,19 +5,40 @@ import org.bson.Document;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+/**
+ * Provides authentication utilities for user management.
+ * Handles password hashing, verification, and user registration.
+ */
 public class UserAuth {
     
-    // Hash a password using BCrypt (strong one-way hashing)
+    /**
+     * Hashes a password using BCrypt with strong security.
+     *
+     * @param plainTextPassword The password to hash
+     * @return A secure hash of the password
+     */
     public static String hashPassword(String plainTextPassword) {
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt(12));
     }
     
-    // Verify a password against a hash
+    /**
+     * Verifies a plain text password against a stored hash.
+     *
+     * @param plainTextPassword The plain text password to verify
+     * @param hashedPassword The hashed password to check against
+     * @return true if the password matches the hash, false otherwise
+     */
     public static boolean verifyPassword(String plainTextPassword, String hashedPassword) {
         return BCrypt.checkpw(plainTextPassword, hashedPassword);
     }
     
-    // Register a new user with hashed password
+    /**
+     * Registers a new user with a hashed password.
+     *
+     * @param username The username for the new user
+     * @param password The password for the new user (will be hashed)
+     * @return true if registration was successful, false if the username already exists or an error occurred
+     */
     public static boolean registerUser(String username, String password) {
         try (MongoDBConnection mongodb = new MongoDBConnection()) {
             MongoCollection<Document> usersCollection = mongodb.getDatabase().getCollection("users");
@@ -39,12 +60,17 @@ public class UserAuth {
             usersCollection.insertOne(userDoc);
             return true;
         } catch (Exception e) {
-            System.err.println("Error registering user: " + e.getMessage());
             return false;
         }
     }
     
-    // Authenticate a user
+    /**
+     * Authenticates a user by checking username and password.
+     *
+     * @param username The username to check
+     * @param password The plain text password to verify
+     * @return true if authentication was successful, false otherwise
+     */
     public static boolean authenticateUser(String username, String password) {
         try (MongoDBConnection mongodb = new MongoDBConnection()) {
             MongoCollection<Document> usersCollection = mongodb.getDatabase().getCollection("users");
@@ -59,7 +85,6 @@ public class UserAuth {
             String hashedPassword = userDoc.getString("password");
             return verifyPassword(password, hashedPassword);
         } catch (Exception e) {
-            System.err.println("Error authenticating user: " + e.getMessage());
             return false;
         }
     }

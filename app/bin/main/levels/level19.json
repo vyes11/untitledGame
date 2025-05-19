@@ -1,0 +1,115 @@
+{
+    "id": 19,
+    "name": "The Diamond",
+    "settings": {
+        "gridSize": 6,
+        "maxMoves": 16,
+        "moveLimits": {
+            "SWAP": 8,
+            "ROTATE": 5,
+            "FLIP_ROW": 5,
+            "FLIP_COLUMN": 5
+        },
+        "difficulty": "hard"
+    },
+    "grid": [
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false},
+            {"red": 0.0, "green": 0.0, "blue": 0.0, "editable": false}
+        ]
+    ]
+}

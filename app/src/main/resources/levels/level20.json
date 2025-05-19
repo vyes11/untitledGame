@@ -1,0 +1,146 @@
+{
+    "id": 20,
+    "name": "Final Challenge",
+    "settings": {
+        "gridSize": 7,
+        "maxMoves": 20,
+        "moveLimits": {
+            "SWAP": 10,
+            "ROTATE": 7,
+            "FLIP_ROW": 7,
+            "FLIP_COLUMN": 7
+        },
+        "difficulty": "expert",
+        "isNumberMode": true
+    },
+    "grid": [
+        [
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 1, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": false},
+            {"value": 6, "editable": false},
+            {"value": 7, "editable": false},
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true}
+        ],
+        [
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": false},
+            {"value": 0, "editable": false},
+            {"value": 7, "editable": false},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true}
+        ],
+        [
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": false},
+            {"value": 1, "editable": false},
+            {"value": 2, "editable": false},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 6, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true}
+        ],
+        [
+            {"value": 7, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 6, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"value": 7, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true}
+        ],
+        [
+            {"value": 1, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 5, "editable": false},
+            {"value": 6, "editable": false},
+            {"value": 7, "editable": false},
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 6, "editable": false},
+            {"value": 0, "editable": false},
+            {"value": 7, "editable": false},
+            {"value": 5, "editable": true},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 7, "editable": false},
+            {"value": 1, "editable": false},
+            {"value": 2, "editable": false},
+            {"value": 6, "editable": true},
+            {"value": 5, "editable": true}
+        ],
+        [
+            {"value": 5, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 7, "editable": true},
+            {"value": 6, "editable": true}
+        ],
+        [
+            {"value": 6, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 7, "editable": true}
+        ]
+    ]
+}

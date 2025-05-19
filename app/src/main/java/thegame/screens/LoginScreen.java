@@ -15,6 +15,10 @@ import thegame.utils.FontRenderer;
 import thegame.onScreenObjects.Button;
 import thegame.onScreenObjects.TextBox;
 
+/**
+ * Screen for user login functionality.
+ * Handles user authentication against the database.
+ */
 public class LoginScreen implements Screen {
     private final App app;
     private FontRenderer fontRenderer;
@@ -40,6 +44,11 @@ public class LoginScreen implements Screen {
     private float transitionTimer = -1;
     private static final float TRANSITION_DELAY = 0.8f; // 0.8 seconds delay
     
+    /**
+     * Creates a new login screen.
+     *
+     * @param app The main application instance
+     */
     public LoginScreen(App app) {
         this.app = app;
         
@@ -49,15 +58,17 @@ public class LoginScreen implements Screen {
             this.usersCollection = mongoClient.getDatabase("theGame").getCollection("data");
         } catch (Exception e) {
             statusMessage = "DB Connection Failed!";
-            e.printStackTrace();
         }
         
         initUI();
     }
     
+    /**
+     * Initializes the user interface elements.
+     */
     private void initUI() {
         fontRenderer = new FontRenderer();
-        fontRenderer.loadFont("F:/temp/theGame/untitledGame/app/src/main/resources/fonts/pf_tempesta_seven_bold.ttf");
+        fontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         
         int inputWidth = 300;
         int inputHeight = 40;
@@ -96,7 +107,7 @@ public class LoginScreen implements Screen {
         
         // Render title
         float titleY = App.WINDOW_HEIGHT * 0.25f;
-        fontRenderer.renderCenteredText("User Login", App.WINDOW_WIDTH / 2, titleY, 2.0f);
+        fontRenderer.renderCenteredText("User Login", App.WINDOW_WIDTH / 4 + 50, titleY/2, 2.0f);
         
         // Render input fields and buttons
         usernameBox.render((float)currentMouseX, (float)currentMouseY);
@@ -106,8 +117,8 @@ public class LoginScreen implements Screen {
         backButton.render((float)currentMouseX, (float)currentMouseY);
         
         // Render field labels
-        fontRenderer.renderText("Username:", usernameBox.getX() - 180, usernameBox.getY() + 10, 1.2f);
-        fontRenderer.renderText("Password:", passwordBox.getX() - 180, passwordBox.getY() + 10, 1.2f);
+        fontRenderer.renderText("Username:", usernameBox.getX() - 220, usernameBox.getY() - 50, 1.2f);
+        fontRenderer.renderText("Password:", passwordBox.getX() - 220, passwordBox.getY() - 50, 1.2f);
         
         // Render status message if there is one
         if (!statusMessage.isEmpty() && statusMessageTimer > 0) {
@@ -162,6 +173,12 @@ public class LoginScreen implements Screen {
         }
     }
     
+    /**
+     * Validates user credentials against the database.
+     *
+     * @param username The username to validate
+     * @param password The password to validate
+     */
     private void validateLogin(String username, String password) {
         try {
             // Query the database for the user
@@ -183,10 +200,15 @@ public class LoginScreen implements Screen {
             }
         } catch (Exception e) {
             showStatusMessage("Error connecting to database", true);
-            e.printStackTrace();
         }
     }
     
+    /**
+     * Shows a status message for a few seconds.
+     *
+     * @param message The message to show
+     * @param isError Whether the message is an error message
+     */
     private void showStatusMessage(String message, boolean isError) {
         this.statusMessage = message;
         this.statusMessageTimer = 3.0f; // Show for 3 seconds
@@ -233,7 +255,9 @@ public class LoginScreen implements Screen {
         }
     }
     
-    // Clean up resources when screen is closed
+    /**
+     * Cleans up resources when screen is closed.
+     */
     public void close() {
         if (mongoClient != null) {
             mongoClient.close();

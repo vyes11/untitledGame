@@ -17,6 +17,10 @@ import thegame.utils.EmailSender;
 import thegame.utils.FontRenderer;
 import thegame.utils.TextInput;
 
+/**
+ * Screen for new user registration.
+ * Handles user signup with email verification process.
+ */
 public class SignupScreen implements Screen {
     private final App app;
     private TextInput emailInput;
@@ -49,6 +53,11 @@ public class SignupScreen implements Screen {
     private double currentMouseX = 0;
     private double currentMouseY = 0;
 
+    /**
+     * Creates a new signup screen.
+     * 
+     * @param app The main application instance
+     */
     public SignupScreen(App app) {
         this.app = app;
 
@@ -63,27 +72,35 @@ public class SignupScreen implements Screen {
         
         // Initialize UI
         fontRenderer = new FontRenderer();
-        fontRenderer.loadFont("F:/temp/theGame/untitledGame/app/src/main/resources/fonts/pf_tempesta_seven_bold.ttf");
+        fontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         
         // Create text inputs
-        emailInput = new TextInput(App.WINDOW_WIDTH/2 - 200, 150, 400, 40);
-        usernameInput = new TextInput(App.WINDOW_WIDTH/2 - 200, 230, 400, 40);
-        passwordInput = new TextInput(App.WINDOW_WIDTH/2 - 200, 310, 400, 40);
+        emailInput = new TextInput(App.WINDOW_WIDTH/2 - 120, 230, 400, 40);
+        usernameInput = new TextInput(App.WINDOW_WIDTH/2 - 120, 310, 400, 40);
+        passwordInput = new TextInput(App.WINDOW_WIDTH/2 - 120, 390, 400, 40);
         passwordInput.setPasswordMode(true);
+
+        // Set email input focused by default
+        emailInput.setFocused(true);
+        usernameInput.setFocused(false);
+        passwordInput.setFocused(false);
         
         // Create verification code input (initially hidden)
-        verificationInput = new TextInput(App.WINDOW_WIDTH/2 - 120, 230, 240, 40);
+        verificationInput = new TextInput(App.WINDOW_WIDTH/2 - 120, 380, 240, 40);
         
-        // Create buttons
-        submitButton = new Button(App.WINDOW_WIDTH/2 - 60, 390, 120, 40, 0.2f, 0.6f, 0.8f, "Sign Up");
-        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 80, 30, 0.3f, 0.3f, 0.6f, "Back");
-        resendButton = new Button(App.WINDOW_WIDTH/2 - 60, 310, 120, 30, 0.6f, 0.6f, 0.2f, "Resend Code");
+        // Create buttons with pink theme
+        submitButton = new Button(App.WINDOW_WIDTH/2 - 60, 490, 120, 40, 0.9f, 0.5f, 0.8f, "Sign Up"); // Secondary pink
+        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 80, 30, 0.7f, 0.3f, 0.6f, "Back"); // Dark pink
+        resendButton = new Button(App.WINDOW_WIDTH/2 - 60, 310, 120, 30, 0.8f, 0.4f, 0.7f, "Resend Code"); // Hot pink
     }
 
+    /**
+     * Renders the signup screen with appropriate UI elements based on the current state.
+     */
     @Override
     public void render() {
         // Draw background
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+        glClearColor(1.0f, 0.7f, 0.9f, 1.0f); // Primary pink
         glClear(GL_COLOR_BUFFER_BIT);
         
         // Draw panel
@@ -92,7 +109,7 @@ public class SignupScreen implements Screen {
         float panelX = App.WINDOW_WIDTH/2 - panelWidth/2;
         float panelY = App.WINDOW_HEIGHT/2 - panelHeight/2;
         
-        glColor4f(0.15f, 0.15f, 0.25f, 1.0f);
+        glColor4f(0.9f, 0.5f, 0.8f, 1.0f); // Secondary pink
         glBegin(GL_QUADS);
         glVertex2f(panelX, panelY);
         glVertex2f(panelX + panelWidth, panelY);
@@ -103,10 +120,10 @@ public class SignupScreen implements Screen {
         // Title varies based on state
         String title = currentState == SignupState.INITIAL_INFO ? 
                       "Create Your Account" : "Verify Your Email";
-        fontRenderer.renderCenteredText(title, App.WINDOW_WIDTH/2, panelY + 40, 1.5f, 0.2f, 0.6f, 1.0f, 1.0f);
+        fontRenderer.renderCenteredText(title, App.WINDOW_WIDTH/2 - 150, panelY -20 , 1.5f, 0.8f, 0.2f, 0.5f, 1.0f); // Pink-hued text
         
         // Draw separator
-        glColor4f(0.3f, 0.3f, 0.6f, 1.0f);
+        glColor4f(0.7f, 0.3f, 0.6f, 1.0f); // Dark pink
         glLineWidth(2.0f);
         glBegin(GL_LINES);
         glVertex2f(panelX + 20, panelY + 70);
@@ -136,7 +153,7 @@ public class SignupScreen implements Screen {
                                           App.WINDOW_WIDTH/2, panelY + 150, 1.0f, 0.2f, 0.8f, 1.0f, 1.0f);
             
             fontRenderer.renderCenteredText("Enter verification code:", 
-                                          App.WINDOW_WIDTH/2, panelY + 200, 1.0f);
+                                          App.WINDOW_WIDTH/2, panelY + 230, 1.0f);
             verificationInput.render(fontRenderer, (float)currentMouseX, (float)currentMouseY);
             
             // Render resend button
@@ -173,6 +190,9 @@ public class SignupScreen implements Screen {
         }
     }
 
+    /**
+     * Initiates the signup process by validating inputs and sending verification email.
+     */
     private void initiateSignup() {
         if (emailInput.getText().isEmpty() || usernameInput.getText().isEmpty() || passwordInput.getText().isEmpty()) {
             statusMessage = "Please fill all fields!";
@@ -232,6 +252,9 @@ public class SignupScreen implements Screen {
         }
     }
     
+    /**
+     * Verifies the entered verification code against the generated one.
+     */
     private void verifyCode() {
         if (verificationInput.getText().isEmpty()) {
             statusMessage = "Please enter verification code!";
@@ -248,6 +271,9 @@ public class SignupScreen implements Screen {
         }
     }
     
+    /**
+     * Completes the signup process by creating the user in the database.
+     */
     private void completeSignup() {
         try {
             // Generate unique user ID (4 digits, starting from 0000)
@@ -276,6 +302,11 @@ public class SignupScreen implements Screen {
         }
     }
     
+    /**
+     * Generates the next available user ID in sequence.
+     * 
+     * @return The next available user ID as a formatted string
+     */
     private String generateNextUserId() {
         try {
             // Query to find the highest existing user ID
@@ -294,7 +325,6 @@ public class SignupScreen implements Screen {
                     nextId = Integer.parseInt(highestId) + 1;
                 } catch (NumberFormatException e) {
                     // If parsing fails, start from 0
-                    System.err.println("Error parsing user ID: " + e.getMessage());
                     nextId = 0;
                 }
             }
@@ -302,13 +332,14 @@ public class SignupScreen implements Screen {
             // Format as 4-digit number with leading zeros
             return String.format("%04d", nextId);
         } catch (Exception e) {
-            System.err.println("Error generating user ID: " + e.getMessage());
-            e.printStackTrace();
             // Fallback to a random ID if something goes wrong
             return String.format("%04d", new Random().nextInt(10000));
         }
     }
     
+    /**
+     * Resends the verification code to the user's email.
+     */
     private void resendVerificationCode() {
         // Generate new verification code
         Random random = new Random();
@@ -329,12 +360,21 @@ public class SignupScreen implements Screen {
         }
     }
 
+    /**
+     * Cleans up resources used by the screen.
+     */
     public void cleanup() {
         if (mongoClient != null) {
             mongoClient.close();
         }
     }
 
+    /**
+     * Handles mouse click events on buttons and input fields.
+     * 
+     * @param mouseX X coordinate of the mouse click
+     * @param mouseY Y coordinate of the mouse click
+     */
     @Override
     public void handleMouseClick(double mouseX, double mouseY) {
         float mx = (float)mouseX;
@@ -358,6 +398,18 @@ public class SignupScreen implements Screen {
             emailInput.handleMouseClick(mx, my);
             usernameInput.handleMouseClick(mx, my);
             passwordInput.handleMouseClick(mx, my);
+
+            // Ensure only one input is focused at a time
+            if (emailInput.isFocused()) {
+                usernameInput.setFocused(false);
+                passwordInput.setFocused(false);
+            } else if (usernameInput.isFocused()) {
+                emailInput.setFocused(false);
+                passwordInput.setFocused(false);
+            } else if (passwordInput.isFocused()) {
+                emailInput.setFocused(false);
+                usernameInput.setFocused(false);
+            }
             
             // Check signup button
             if (submitButton.handleMouseClick(mx, my)) {
@@ -380,17 +432,35 @@ public class SignupScreen implements Screen {
         }
     }
 
+    /**
+     * Updates the current mouse position.
+     * 
+     * @param mouseX X coordinate of the mouse
+     * @param mouseY Y coordinate of the mouse
+     */
     @Override
     public void handleMouseMove(double mouseX, double mouseY) {
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
     }
 
+    /**
+     * Handles mouse release events.
+     * 
+     * @param mouseX X coordinate of the mouse release
+     * @param mouseY Y coordinate of the mouse release
+     */
     @Override
     public void handleMouseRelease(double x, double y) {
         // Not used
     }
     
+    /**
+     * Handles keyboard key press events like tab navigation and backspace.
+     * 
+     * @param key The key code
+     * @param action The action (press, release, etc.)
+     */
     @Override
     public void handleKeyPress(int key, int action) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -431,6 +501,11 @@ public class SignupScreen implements Screen {
         }
     }
 
+    /**
+     * Handles character input for text fields.
+     * 
+     * @param codepoint The Unicode code point of the character
+     */
     @Override
     public void handleCharInput(int codepoint) {
         // Handle character input for text fields

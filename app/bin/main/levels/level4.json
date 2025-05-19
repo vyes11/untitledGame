@@ -1,70 +1,49 @@
 {
   "id": 4,
-  "name": "Number Puzzle",
+  "name": "Color Cross",
   "settings": {
-    "gridSize": 4,
-    "maxMoves": 15,
+    "gridSize": 3,
+    "maxMoves": 5,
     "moveLimits": {
-      "MULTIPLY": 3,
-      "DIVIDE": 3,
-      "ADD": 5,
-      "SUBTRACT": 5,
-      "EDIT_ROW": 2,
-      "EDIT_COLUMN": 2
+      "SWAP": 3,
+      "ROTATE": 1,
+      "FLIP_ROW": 2,
+      "FLIP_COLUMN": 2
     },
-    "difficulty": "medium",
-    "isNumberMode": true
+    "difficulty": "easy"
   },
   "grid": [
     [
-      {"value": 1, "editable": true},
-      {"value": 2, "editable": true},
-      {"value": 3, "editable": true},
-      {"value": 4, "editable": true}
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+      {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
     ],
     [
-      {"value": 5, "editable": true},
-      {"value": 6, "editable": true},
-      {"value": 7, "editable": true},
-      {"value": 8, "editable": true}
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+      {"red": 1.0, "green": 1.0, "blue": 1.0, "editable": true},
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
     ],
     [
-      {"value": 2, "editable": true},
-      {"value": 3, "editable": true},
-      {"value": 4, "editable": true},
-      {"value": 5, "editable": true}
-    ],
-    [
-      {"value": 6, "editable": true},
-      {"value": 7, "editable": true},
-      {"value": 8, "editable": true},
-      {"value": 1, "editable": true}
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+      {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
     ]
   ],
   "targetPattern": [
     [
-      {"value": 1, "editable": true},
-      {"value": 2, "editable": true},
-      {"value": 3, "editable": true},
-      {"value": 4, "editable": true}
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+      {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
     ],
     [
-      {"value": 2, "editable": true},
-      {"value": 3, "editable": true},
-      {"value": 4, "editable": true},
-      {"value": 5, "editable": true}
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+      {"red": 1.0, "green": 1.0, "blue": 1.0, "editable": true},
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
     ],
     [
-      {"value": 3, "editable": true},
-      {"value": 4, "editable": true},
-      {"value": 5, "editable": true},
-      {"value": 6, "editable": true}
-    ],
-    [
-      {"value": 4, "editable": true},
-      {"value": 5, "editable": true},
-      {"value": 6, "editable": true},
-      {"value": 7, "editable": true}
+      {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+      {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+      {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
     ]
   ]
 }

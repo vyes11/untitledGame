@@ -1,0 +1,67 @@
+{
+    "id": 6,
+    "name": "Row Master",
+    "settings": {
+        "gridSize": 4,
+        "maxMoves": 6,
+        "moveLimits": {
+            "SWAP": 2,
+            "ROTATE": 0,
+            "FLIP_ROW": 4,
+            "FLIP_COLUMN": 1
+        },
+        "difficulty": "medium"
+    },
+    "grid": [
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ],
+        [
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true}
+        ]
+    ]
+}

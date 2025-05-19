@@ -16,14 +16,19 @@ import com.google.gson.Gson;
 import thegame.App;
 import thegame.Screen;
 import thegame.utils.FontRenderer;
-import thegame.utils.GLDebugger;
 import thegame.onScreenObjects.Button;
 import thegame.utils.LevelConfig;
 import thegame.utils.LevelConfig.MoveType;
+import thegame.utils.MongoDBConnection;
+import thegame.utils.CloudBackground;
+import org.bson.Document;
+import com.mongodb.client.MongoCollection;
 
+/**
+ * The main game screen where the user plays the puzzle game.
+ * Manages game state, grid rendering, and gameplay mechanics.
+ */
 public class GameScreen implements Screen {
-    private static final boolean DEBUG = true;
-    
     // Move type constants
     private static final int MOVE_SWAP = 0;
     private static final int MOVE_ROW = 1;
@@ -77,6 +82,9 @@ public class GameScreen implements Screen {
     private Button selectCellButton; // Button to select a cell
     private Button[] victoryButtons;
     private Button[] failureButtons;
+    private Button likeButton;
+    private boolean hasLiked = false;
+    private boolean statisticsUpdated = false;
     private FontRenderer fontRenderer;
     
     // Grid rendering properties
@@ -88,10 +96,19 @@ public class GameScreen implements Screen {
     private double currentMouseY = 0;
 
     private final LevelConfig levelConfig; // Add field to store the LevelConfig
+    private boolean isVerificationMode = false;
 
+    // Cloud background
+    private CloudBackground cloudBackground;
+
+    /**
+     * Constructs a new game screen with the specified level configuration.
+     * 
+     * @param app The main application instance
+     * @param levelConfig The configuration for the level to be played
+     * @throws IllegalArgumentException if levelConfig is invalid
+     */
     public GameScreen(App app, LevelConfig levelConfig) {
-        if (DEBUG) System.out.println("Initializing GameScreen...");
-        
         this.app = app;
         this.levelConfig = levelConfig; // Store the levelConfig
         
@@ -103,7 +120,6 @@ public class GameScreen implements Screen {
         }
 
         this.gridSize = levelConfig.getSettings().getGridSize();
-        if (DEBUG) System.out.printf("Grid size: %d%n", this.gridSize);
 
         this.grid = levelConfig.getGrid();
         if (grid == null || grid.length != gridSize || grid[0].length != gridSize) {
@@ -134,50 +150,37 @@ public class GameScreen implements Screen {
         this.currentLevelNumber = levelConfig.getLevelNumber();
         this.isNumberMode = levelConfig.getSettings().isNumberMode();
         
-        initUI();
+        // Initialize cloud background
+        cloudBackground = new CloudBackground(CloudBackground.RenderStyle.SIMPLE_BLOTS);
         
-        if (DEBUG) {
-            System.out.printf("Level loaded: %s%n", levelName);
-            System.out.printf("Max moves: %d%n", maxMoves);
-            System.out.println("Move limits: " + moveLimits);
-            debugPrintGrid();
-        }
+        initUI();
     }
     
-    // Create a static method to load a level directly from a resource
+    /**
+     * Creates a GameScreen from a built-in level number.
+     * 
+     * @param app The main application instance
+     * @param levelNumber The level number to load
+     * @return A new GameScreen instance with the loaded level
+     */
     public static GameScreen fromLevelNumber(App app, int levelNumber) {
         try {
             String resourcePath = "/levels/level" + levelNumber + ".json";
-            System.out.println("Loading level from: " + resourcePath);
             
             InputStream inputStream = GameScreen.class.getResourceAsStream(resourcePath);
             if (inputStream == null) {
-                System.err.println("Could not find resource: " + resourcePath);
-                
                 // Try alternate path formats
                 String[] alternativePaths = {
-                    "levels/level" + levelNumber + ".json",
+                    "/levels/level" + levelNumber + ".json",
                     "/level" + levelNumber + ".json",
-                    "level" + levelNumber + ".json",
-                    "F:/temp/theGame/untitledGame/app/src/main/resources/levels/level" + levelNumber + ".json"
+                    "levels/level" + levelNumber + ".json",
+                    "level" + levelNumber + ".json"
                 };
                 
                 for (String path : alternativePaths) {
-                    System.out.println("Trying alternative path: " + path);
-                    if (path.startsWith("F:")) {
-                        try {
-                            inputStream = new java.io.FileInputStream(path);
-                            System.out.println("Found level at absolute path: " + path);
-                            break;
-                        } catch (Exception e) {
-                            continue;
-                        }
-                    } else {
-                        inputStream = GameScreen.class.getResourceAsStream(path);
-                        if (inputStream != null) {
-                            System.out.println("Found level at: " + path);
-                            break;
-                        }
+                    inputStream = GameScreen.class.getResourceAsStream(path);
+                    if (inputStream != null) {
+                        break;
                     }
                 }
                 
@@ -187,23 +190,23 @@ public class GameScreen implements Screen {
             }
             
             String jsonContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            System.out.println("Loaded JSON: " + (jsonContent.length() > 100 ? jsonContent.substring(0, 100) + "..." : jsonContent));
             
             LevelConfig levelConfig = new Gson().fromJson(jsonContent, LevelConfig.class);
             
             return new GameScreen(app, levelConfig);
             
         } catch (Exception e) {
-            System.err.println("Error loading level " + levelNumber + ": " + e.getMessage());
-            e.printStackTrace();
             return createTestScreen(app);
         }
     }
     
-    // Create a test screen as fallback
+    /**
+     * Creates a simple test level as a fallback when level loading fails.
+     * 
+     * @param app The main application instance
+     * @return A new GameScreen with a basic test level
+     */
     private static GameScreen createTestScreen(App app) {
-        System.out.println("Creating test level screen as fallback");
-        
         LevelConfig.Settings settings = new LevelConfig.Settings(2, 3, "test");
         
         LevelConfig.Cell[][] testGrid = new LevelConfig.Cell[2][2];
@@ -229,13 +232,16 @@ public class GameScreen implements Screen {
         return new GameScreen(app, testLevel);
     }
     
+    /**
+     * Initializes the user interface components like buttons and grid positions.
+     */
     private void initUI() {
         // Initialize font renderer
         fontRenderer = new FontRenderer();
-        fontRenderer.loadFont("F:/temp/theGame/untitledGame/app/src/main/resources/fonts/pf_tempesta_seven_bold.ttf");
+        fontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         
         // Create back button
-        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 200, 40, 0.3f, 0.3f, 0.6f, "Back to Level Select");
+        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 200, 40, 0.7f, 0.3f, 0.6f, "Back to Level Select"); // Dark pink
         
         // Calculate grid positions with dynamic scaling for larger grids
         // Base size for 5x5 grids
@@ -254,82 +260,71 @@ public class GameScreen implements Screen {
             targetGridCellSize = baseTargetCellSize;
         }
         
-        mainGridX = 100;
-        mainGridY = 200;
+        mainGridX = 140;
+        mainGridY = 240;
         
         targetGridX = App.WINDOW_WIDTH - 200 - (gridSize * targetGridCellSize);
         targetGridY = 200;
         
-        // Create mode buttons
+        // Create mode buttons with pink theme
         modeButtons = new Button[isNumberMode ? 4 : 3];
-        modeButtons[0] = new Button(20, 20, 120, 40, 0.2f, 0.5f, 0.8f, "Swap Mode");
-        modeButtons[1] = new Button(150, 20, 120, 40, 0.2f, 0.5f, 0.8f, "Row Mode");
-        modeButtons[2] = new Button(280, 20, 120, 40, 0.2f, 0.5f, 0.8f, "Column Mode");
+        modeButtons[0] = new Button(20, 20, 120, 40, 0.9f, 0.5f, 0.8f, "Swap Mode"); // Secondary pink
+        modeButtons[1] = new Button(150, 20, 120, 40, 1.0f, 0.4f, 0.7f, "Row Mode"); // Accent pink
+        modeButtons[2] = new Button(280, 20, 120, 40, 0.7f, 0.3f, 0.6f, "Column Mode"); // Dark pink
         
         if (isNumberMode) {
-            modeButtons[3] = new Button(410, 20, 120, 40, 0.2f, 0.5f, 0.8f, "Multiply Mode");
+            modeButtons[3] = new Button(410, 20, 120, 40, 1.0f, 0.6f, 0.8f, "Multiply Mode"); // Brighter pink
             
             // Add toggle button for number controls
-            controlToggleButton = new Button(540, 20, 180, 40, 0.6f, 0.3f, 0.6f, "Toggle Number Controls");
+            controlToggleButton = new Button(540, 20, 180, 40, 0.9f, 0.3f, 0.7f, "Toggle Number Controls"); // Vibrant pink
             
-            // Initialize number operation buttons (initially hidden)
+            // Initialize number operation buttons with pink theme
             numberOpButtons = new Button[4];
-            numberOpButtons[0] = new Button(20, 70, 120, 40, 0.3f, 0.6f, 0.3f, "Add 1");
-            numberOpButtons[1] = new Button(150, 70, 120, 40, 0.6f, 0.3f, 0.3f, "Subtract 1");
-            numberOpButtons[2] = new Button(280, 70, 120, 40, 0.3f, 0.3f, 0.6f, "Multiply by 2");
-            numberOpButtons[3] = new Button(410, 70, 120, 40, 0.6f, 0.6f, 0.3f, "Divide by 2");
+            numberOpButtons[0] = new Button(20, 70, 120, 40, 0.9f, 0.5f, 0.8f, "Add 1"); // Secondary pink
+            numberOpButtons[1] = new Button(150, 70, 120, 40, 1.0f, 0.4f, 0.7f, "Subtract 1"); // Accent pink
+            numberOpButtons[2] = new Button(280, 70, 120, 40, 0.7f, 0.3f, 0.6f, "Multiply by 2"); // Dark pink
+            numberOpButtons[3] = new Button(410, 70, 120, 40, 1.0f, 0.6f, 0.8f, "Divide by 2"); // Brighter pink
             
             // Initialize selection mode buttons
-            selectRowButton = new Button(20, 120, 120, 40, 0.5f, 0.5f, 0.2f, "Select Row");
-            selectColumnButton = new Button(150, 120, 120, 40, 0.5f, 0.5f, 0.2f, "Select Column");
-            selectCellButton = new Button(280, 120, 120, 40, 0.5f, 0.5f, 0.2f, "Select Cell");
+            selectRowButton = new Button(20, 120, 120, 40, 0.9f, 0.5f, 0.8f, "Select Row"); // Secondary pink
+            selectColumnButton = new Button(150, 120, 120, 40, 1.0f, 0.4f, 0.7f, "Select Column"); // Accent pink
+            selectCellButton = new Button(280, 120, 120, 40, 0.7f, 0.3f, 0.6f, "Select Cell"); // Dark pink
         }
         
-        // Create victory buttons
-        boolean isOnlineLevel = currentLevelNumber > 5000 || levelConfig.isCustomLevel(); // Fixed: use levelConfig instead of level
-        int buttonCount = isOnlineLevel ? 2 : 3; // Only 2 buttons for online levels (no "Next Level")
+        // Create victory buttons with pink theme
+        boolean isOnlineLevel = currentLevelNumber > 5000 || levelConfig.isCustomLevel();
+        int buttonCount = isOnlineLevel ? 2 : 3;
         victoryButtons = new Button[buttonCount];
         float victoryButtonX = App.WINDOW_WIDTH / 2 - 80;
         float victoryButtonY = App.WINDOW_HEIGHT / 2 - 50;
-        victoryButtons[0] = new Button(victoryButtonX, victoryButtonY, 160, 40, 0.3f, 0.7f, 0.3f, "Menu");
-        victoryButtons[1] = new Button(victoryButtonX, victoryButtonY + 50, 160, 40, 0.3f, 0.7f, 0.3f, "Restart");
+        victoryButtons[0] = new Button(victoryButtonX, victoryButtonY, 160, 40, 0.9f, 0.5f, 0.8f, "Menu"); // Secondary pink
+        victoryButtons[1] = new Button(victoryButtonX, victoryButtonY + 50, 160, 40, 1.0f, 0.4f, 0.7f, "Restart"); // Accent pink
         
         // Only add "Next Level" button for built-in levels
         if (!isOnlineLevel) {
-            victoryButtons[2] = new Button(victoryButtonX, victoryButtonY + 100, 160, 40, 0.3f, 0.7f, 0.3f, "Next Level");
+            victoryButtons[2] = new Button(victoryButtonX, victoryButtonY + 100, 160, 40, 0.7f, 0.3f, 0.6f, "Next Level"); // Dark pink
         }
         
-        // Create failure buttons
+        // Create failure buttons with pink theme
         failureButtons = new Button[2];
         float failureButtonX = App.WINDOW_WIDTH / 2 - 80;
         float failureButtonY = App.WINDOW_HEIGHT / 2 - 20;
-        failureButtons[0] = new Button(failureButtonX, failureButtonY, 160, 40, 0.7f, 0.3f, 0.3f, "Try Again");
-        failureButtons[1] = new Button(failureButtonX, failureButtonY + 50, 160, 40, 0.7f, 0.3f, 0.3f, "Menu");
+        failureButtons[0] = new Button(failureButtonX, failureButtonY, 160, 40, 0.9f, 0.5f, 0.8f, "Try Again"); // Secondary pink
+        failureButtons[1] = new Button(failureButtonX, failureButtonY + 50, 160, 40, 0.7f, 0.3f, 0.6f, "Menu"); // Dark pink
+        
+        // Create like button for the victory screen
+        likeButton = new Button(App.WINDOW_WIDTH / 2 - 80, App.WINDOW_HEIGHT / 2 + 150, 
+                              160, 40, 1.0f, 0.4f, 0.7f, "Like Level"); // Accent pink
     }
 
-    private void debugPrintGrid() {
-        System.out.println("Current Grid State:");
-        for (int i = 0; i < gridSize; i++) {
-            for (int j = 0; j < gridSize; j++) {
-                LevelConfig.Cell cell = grid[i][j];
-                if (isNumberMode) {
-                    System.out.printf("(%d,%d): Value=%d Editable:%b | ",
-                        i, j, cell.getNumericValue(), cell.editable);
-                } else {
-                    System.out.printf("(%d,%d): RGB(%.1f,%.1f,%.1f) Editable:%b | ",
-                        i, j, cell.red, cell.green, cell.blue, cell.editable);
-                }
-            }
-            System.out.println();
-        }
-    }
-
+    /**
+     * Renders the game screen, including grids, buttons, and UI elements.
+     */
     @Override
     public void render() {
         try {
             // Re-verify OpenGL context
             if (GL.getCapabilities() == null) {
-                System.err.println("FATAL: GL capabilities are null in GameScreen.render()");
                 glfwMakeContextCurrent(app.getWindow());
                 GL.createCapabilities();
                 if (GL.getCapabilities() == null) return;
@@ -342,12 +337,16 @@ public class GameScreen implements Screen {
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             
-            // Clear screen with pink background
-            glClearColor(1.0f, 0.7f, 0.9f, 1.0f);
+            // Clear screen with a pink background
+            glClearColor(1.0f, 0.7f, 0.9f, 1.0f); // Primary pink
             glClear(GL_COLOR_BUFFER_BIT);
             
+            // Update and render clouds (with simple white blots style)
+            cloudBackground.update();
+            cloudBackground.render();
+            
             // Draw border to verify rendering
-            glColor3f(1.0f, 1.0f, 1.0f);
+            glColor3f(0.9f, 0.5f, 0.8f); // Secondary pink
             glLineWidth(2.0f);
             glBegin(GL_LINE_LOOP);
             glVertex2f(10, 10);
@@ -359,21 +358,27 @@ public class GameScreen implements Screen {
             // Render level name
             if (fontRenderer != null) {
                 // Level name position 
-                fontRenderer.renderCenteredText(levelName, App.WINDOW_WIDTH * 0.5f, 40, 2.0f);
+                fontRenderer.renderCenteredText(levelName, App.WINDOW_WIDTH / 4f + 50, 40, 2.0f);
                 
                 // Move counters - adjust these values
                 float moveCounterX = 20;
                 float moveCounterY = 90;
+                
+                // If number controls are active, push down the text to avoid overlap with buttons
+                if (isNumberMode && numberControlsActive) {
+                    moveCounterY = 170; // Position below the number control buttons (which end at y=160)
+                }
+                
                 // Increase this value to create more space between lines
                 float moveCounterSpacing = 25;
                 
                 // Total moves text
                 String totalMovesText = String.format("Total Moves: %d/%d", movesUsed, maxMoves);
-                fontRenderer.renderText(totalMovesText, moveCounterX, moveCounterY, 1.2f);
-                
+                fontRenderer.renderText(totalMovesText, moveCounterX - 5, moveCounterY - 20, 1.2f);
+
                 // Only show move counters if not using number controls
                 if (!numberControlsActive || !isNumberMode) {
-                    // Show specific move type counters
+                    // Show specific move type counters with adjusted spacing
                     if (moveLimits.containsKey(MoveType.SWAP.name())) {
                         String swapText = String.format("Swaps: %d/%d", 
                             movesUsedPerType.getOrDefault(MoveType.SWAP.name(), 0),
@@ -422,19 +427,19 @@ public class GameScreen implements Screen {
                         moveCounterX, moveCounterY + moveCounterSpacing * 2, 1.0f);
                 }
                 
-                // Render grid labels
-                fontRenderer.renderText("CURRENT GRID:", mainGridX, mainGridY - 30, 1.5f);
-                fontRenderer.renderText("TARGET GRID:", targetGridX, targetGridY - 30, 1.5f);
+                // Render grid labels - position higher on the screen
+                fontRenderer.renderText("CURRENT GRID:", mainGridX / 1.5f + 50, mainGridY / 1.5f - 40, 1.5f);
+                fontRenderer.renderText("TARGET GRID:", targetGridX / 1.5f, targetGridY / 1.5f - 40, 1.5f);
             }
-            
-            // Draw grid backgrounds
+        
+            // Draw grid backgrounds with pink theme
             drawRect(mainGridX - 10, mainGridY - 10, 
                     gridSize * mainGridCellSize + 20, gridSize * mainGridCellSize + 20, 
-                    0.2f, 0.2f, 0.4f);
+                    0.8f, 0.4f, 0.7f); // Accent pink
             
             drawRect(targetGridX - 10, targetGridY - 10, 
                     gridSize * targetGridCellSize + 20, gridSize * targetGridCellSize + 20, 
-                    0.2f, 0.2f, 0.4f);
+                    0.8f, 0.4f, 0.7f); // Accent pink
             
             // Render grids
             renderGrid(grid, mainGridX, mainGridY, mainGridCellSize);
@@ -488,10 +493,70 @@ public class GameScreen implements Screen {
             
             // Handle victory screen
             if (hasWon) {
+                // Check if this is verification mode
+                if (isVerificationMode) {
+                    // If in verification mode, save the level as verified and return to editor
+                    if (!statisticsUpdated) {
+                        if (app.isLoggedIn()) {
+                            try {
+                                // Get the level ID from the app or from the current level
+                                int levelId = app.getMostRecentlyEditedLevelId();
+                                if (levelId <= 0) {
+                                    levelId = this.levelConfig.getLevelNumber();
+                                }
+                                
+                                // Get the static pending level and key from LevelEditorScreen
+                                LevelConfig pendingLevel = LevelEditorScreen.getPendingLevel();
+                                String pendingLevelKey = LevelEditorScreen.getPendingLevelKey();
+                                
+                                if (pendingLevel != null) {
+                                    System.out.println("VERIFICATION DEBUG: Found pending level: " + 
+                                                     pendingLevel.getName() + " with ID " + 
+                                                     pendingLevel.getLevelNumber());
+                                } else {
+                                    System.out.println("VERIFICATION DEBUG: No pending level found, using current level");
+                                }
+                                
+                                // Create the OnlineLevelSelectScreen with verification success flag
+                                app.setCurrentScreen(new OnlineLevelSelectScreen(app, true, true));
+                                System.out.println("VERIFICATION DEBUG: Returned to OnlineLevelSelectScreen with success flag");
+                                
+                            } catch (Exception e) {
+                                System.err.println("VERIFICATION ERROR: " + e.getMessage());
+                                e.printStackTrace();
+                                app.setCurrentScreen(new OnlineLevelSelectScreen(app, true, false));
+                            }
+                        } else {
+                            System.out.println("VERIFICATION DEBUG: User not logged in, can't verify");
+                            app.setCurrentScreen(new OnlineLevelSelectScreen(app, true, false));
+                        }
+                        statisticsUpdated = true;
+                    }
+                } else {
+                    // Normal victory handling
+                    // Increment play count when level is completed
+                    if (!statisticsUpdated) {
+                        updateLevelStatistics(true, false);
+                        statisticsUpdated = true;
+                    }
+                }
+                
                 drawOverlay();
                 fontRenderer.renderCenteredText("Level Complete!", App.WINDOW_WIDTH / 2, App.WINDOW_HEIGHT / 2 - 70, 2.0f, 0.2f, 0.8f, 0.2f, 1.0f);
+                
+                // Draw regular victory buttons
                 for (Button button : victoryButtons) {
                     button.render((float)currentMouseX, (float)currentMouseY);
+                }
+                
+                // Only show like button for online levels
+                if (currentLevelNumber > 1000 || levelConfig.isCustomLevel()) {
+                    if (hasLiked) {
+                        fontRenderer.renderCenteredText("Thanks for liking!", App.WINDOW_WIDTH / 2, 
+                                        App.WINDOW_HEIGHT / 2 + 120, 1.2f, 0.2f, 0.7f, 0.2f, 1.0f);
+                    } else {
+                        likeButton.render((float)currentMouseX, (float)currentMouseY);
+                    }
                 }
             }
             
@@ -505,18 +570,20 @@ public class GameScreen implements Screen {
             }
             
         } catch (Exception e) {
-            System.err.println("Error in render: " + e.getMessage());
-            e.printStackTrace();
+            // Handle exception silently
         }
     }
     
+    /**
+     * Draws a semi-transparent overlay for victory/failure screens.
+     */
     private void drawOverlay() {
         float panelWidth = 400;
         float panelHeight = 300;
         float panelX = App.WINDOW_WIDTH / 2 - panelWidth / 2;
         float panelY = App.WINDOW_HEIGHT / 2 - panelHeight / 2;
         
-        glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+        glColor4f(0.9f, 0.5f, 0.8f, 0.8f); // Semi-transparent pink
         glBegin(GL_QUADS);
         glVertex2f(panelX, panelY);
         glVertex2f(panelX + panelWidth, panelY);
@@ -525,6 +592,17 @@ public class GameScreen implements Screen {
         glEnd();
     }
     
+    /**
+     * Draws a rectangle with the specified coordinates and color.
+     * 
+     * @param x X coordinate of the top-left corner
+     * @param y Y coordinate of the top-left corner
+     * @param width Width of the rectangle
+     * @param height Height of the rectangle
+     * @param r Red component (0.0-1.0)
+     * @param g Green component (0.0-1.0)
+     * @param b Blue component (0.0-1.0)
+     */
     private void drawRect(float x, float y, float width, float height, float r, float g, float b) {
         glColor3f(r, g, b);
         glBegin(GL_QUADS);
@@ -535,9 +613,16 @@ public class GameScreen implements Screen {
         glEnd();
     }
     
+    /**
+     * Renders a grid of cells at the specified position.
+     * 
+     * @param gridToRender The grid data to render
+     * @param posX X coordinate of the top-left corner
+     * @param posY Y coordinate of the top-left corner
+     * @param cellSize Size of each cell
+     */
     private void renderGrid(LevelConfig.Cell[][] gridToRender, float posX, float posY, float cellSize) {
         if (gridToRender == null) {
-            System.err.println("Cannot render null grid");
             return;
         }
         
@@ -630,10 +715,16 @@ public class GameScreen implements Screen {
             glEnd();
             
         } catch (Exception e) {
-            System.err.println("Error rendering grid: " + e.getMessage());
+            // Handle exception silently
         }
     }
 
+    /**
+     * Handles mouse click events, including UI button clicks and grid cell selection.
+     * 
+     * @param mouseX X coordinate of the mouse click
+     * @param mouseY Y coordinate of the mouse click
+     */
     @Override
     public void handleMouseClick(double mouseX, double mouseY) {
         float mx = (float)mouseX;
@@ -756,7 +847,12 @@ public class GameScreen implements Screen {
         }
     }
     
-    // New method to handle number operations
+    /**
+     * Handles number operations (add, subtract, multiply, divide) on cells.
+     * 
+     * @param row Row index of the selected cell
+     * @param col Column index of the selected cell
+     */
     private void handleNumberOperation(int row, int col) {
         String moveTypeName = MoveType.ROTATE.name(); // Use ROTATE for all number operations
         
@@ -789,7 +885,12 @@ public class GameScreen implements Screen {
         }
     }
     
-    // Helper method to apply number operation to a cell
+    /**
+     * Applies a number operation to a single cell.
+     * 
+     * @param cell The cell to modify
+     * @return true if the operation changed the cell value, false otherwise
+     */
     private boolean applyNumberOperation(LevelConfig.Cell cell) {
         if (cell == null || !cell.editable) return false;
         
@@ -834,6 +935,12 @@ public class GameScreen implements Screen {
         return true;
     }
 
+    /**
+     * Handles clicks on grid cells based on the current move type.
+     * 
+     * @param row Row index of the clicked cell
+     * @param col Column index of the clicked cell
+     */
     private void handleMoveTypeClick(int row, int col) {
         String moveTypeName;
         
@@ -865,7 +972,12 @@ public class GameScreen implements Screen {
         }
     }
     
-    // Helper method to check if a move type can be used
+    /**
+     * Checks if a move type can be used based on the remaining move limits.
+     * 
+     * @param moveTypeName The name of the move type to check
+     * @return true if the move can be used, false otherwise
+     */
     private boolean canUseMove(String moveTypeName) {
         Integer limit = moveLimits.get(moveTypeName);
         Integer used = movesUsedPerType.get(moveTypeName);
@@ -877,7 +989,11 @@ public class GameScreen implements Screen {
         return used < limit;
     }
     
-    // Update this method to increment the specific move type counter
+    /**
+     * Increments the counter for a specific move type.
+     * 
+     * @param moveTypeName The name of the move type to increment
+     */
     private void incrementMoveUsed(String moveTypeName) {
         movesUsed++; // For backward compatibility
         
@@ -886,6 +1002,12 @@ public class GameScreen implements Screen {
         movesUsedPerType.put(moveTypeName, current + 1);
     }
 
+    /**
+     * Handles cell selection in swap mode.
+     * 
+     * @param row Row index of the selected cell
+     * @param col Column index of the selected cell
+     */
     private void handleSwapMode(int row, int col) {
         LevelConfig.Cell clickedCell = grid[row][col];
         if (clickedCell.editable && !isBlackCell(clickedCell)) {
@@ -895,6 +1017,11 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Handles row selection and swapping.
+     * 
+     * @param row Row index to select or swap
+     */
     private void handleRowMode(int row) {
         if (selectedRow == -1) {
             selectedRow = row;
@@ -909,6 +1036,11 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Handles column selection and swapping.
+     * 
+     * @param col Column index to select or swap
+     */
     private void handleColumnMode(int col) {
         if (selectedCol == -1) {
             selectedCol = col;
@@ -925,6 +1057,12 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Handles multiply operations in number mode.
+     * 
+     * @param row Row index of the selected cell
+     * @param col Column index of the selected cell
+     */
     private void handleMultiplyMode(int row, int col) {
         if (isNumberMode) {
             // Multiply selected row or column by 2
@@ -959,6 +1097,12 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Handles mouse release events, completing drag operations.
+     * 
+     * @param mouseX X coordinate of the mouse release
+     * @param mouseY Y coordinate of the mouse release
+     */
     @Override
     public void handleMouseRelease(double mouseX, double mouseY) {
         if (!isDragging) return;
@@ -972,16 +1116,12 @@ public class GameScreen implements Screen {
             
             LevelConfig.Cell targetCell = grid[cellPos[0]][cellPos[1]];
             if (targetCell.editable && !isBlackCell(targetCell) && isAdjacent) {
-                if (DEBUG) System.out.printf("Swapping cells (%d,%d) and (%d,%d)%n",
-                    dragStartRow, dragStartCol, cellPos[0], cellPos[1]);
-                
                 // Swap cells
                 LevelConfig.Cell temp = grid[dragStartRow][dragStartCol];
                 grid[dragStartRow][dragStartCol] = grid[cellPos[0]][cellPos[1]];
                 grid[cellPos[0]][cellPos[1]] = temp;
                 
                 incrementMoveUsed(MoveType.SWAP.name());
-                if (DEBUG) System.out.printf("Moves used: %d/%d%n", movesUsed, maxMoves);
                 checkVictory();
             }
         }
@@ -1010,6 +1150,13 @@ public class GameScreen implements Screen {
         return false;
     }
 
+    /**
+     * Checks if two cells have matching colors or values.
+     * 
+     * @param cell1 The first cell
+     * @param cell2 The second cell
+     * @return true if the cells match, false otherwise
+     */
     private boolean checkMatch(LevelConfig.Cell cell1, LevelConfig.Cell cell2) {
         if (isNumberMode) {
             // Compare numeric values for number mode instead of just the red channel
@@ -1022,6 +1169,10 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Checks if the player has won or lost the level.
+     * Updates hasWon or hasLost flags accordingly.
+     */
     private void checkVictory() {
         // Check if any move type has exceeded its limit
         for (String moveType : moveLimits.keySet()) {
@@ -1051,12 +1202,25 @@ public class GameScreen implements Screen {
         hasWon = true;
     }
 
+    /**
+     * Updates the current mouse position.
+     * 
+     * @param mouseX The current X coordinate of the mouse
+     * @param mouseY The current Y coordinate of the mouse
+     */
     @Override
     public void handleMouseMove(double mouseX, double mouseY) {
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
     }
 
+    /**
+     * Converts mouse coordinates to grid cell indices.
+     * 
+     * @param mouseX The X coordinate of the mouse
+     * @param mouseY The Y coordinate of the mouse
+     * @return An array containing [row, col] if the coordinates are within the grid, null otherwise
+     */
     private int[] getCellFromCoordinates(double mouseX, double mouseY) {
         // Check if click is inside the main grid
         if (mouseX >= mainGridX && mouseX < mainGridX + gridSize * mainGridCellSize &&
@@ -1072,22 +1236,173 @@ public class GameScreen implements Screen {
         
         return null;
     }
-
+    
+    /**
+     * Checks if a cell is a black/empty cell.
+     * 
+     * @param cell The cell to check
+     * @return true if the cell is black (all RGB values are 0), false otherwise
+     */
     private boolean isBlackCell(LevelConfig.Cell cell) {
         return cell.red == 0.0f && cell.green == 0.0f && cell.blue == 0.0f;
     }
 
+    /**
+     * Handles key press events.
+     * 
+     * @param key The key code
+     * @param action The action (press, release, etc.)
+     */
     @Override
     public void handleKeyPress(int key, int action) {
         // Not needed for now
     }
+    
+    /**
+     * Handles character input events.
+     * 
+     * @param codepoint The Unicode code point of the character
+     */
     @Override
     public void handleCharInput(int codepoint) {
         // Not needed for level select as it has no text input fields
     }
 
-    // Add a method to access the level config
+    /**
+     * Gets the level configuration for this game screen.
+     * 
+     * @return The level configuration
+     */
     public LevelConfig getLevelConfig() {
         return levelConfig;
+    }
+    
+    /**
+     * Updates the statistics for this level in the database.
+     * 
+     * @param incrementPlays Whether to increment the "timeplayed" counter
+     * @param incrementLikes Whether to increment the "likes" counter
+     */
+    private void updateLevelStatistics(boolean incrementPlays, boolean incrementLikes) {
+        // Only process online levels
+        if (!(currentLevelNumber > 1000 || levelConfig.isCustomLevel())) {
+            return;
+        }
+        
+        new Thread(() -> {
+            try (MongoDBConnection mongodb = new MongoDBConnection()) {
+                // Find the level owner
+                MongoCollection<Document> usersCollection = mongodb.getDatabase().getCollection("data");
+                String levelIdStr = String.valueOf(currentLevelNumber);
+                String levelKey = "level" + levelIdStr;
+                
+                // Search for the level in all users
+                for (Document userDoc : usersCollection.find()) {
+                    Object levelsObj = userDoc.get("Levels");
+                    if (!(levelsObj instanceof Document)) {
+                        continue;
+                    }
+                    
+                    Document levelsDoc = (Document) levelsObj;
+                    if (!levelsDoc.containsKey(levelKey)) {
+                        continue;
+                    }
+                    
+                    // Found the level, now update its statistics
+                    Document levelDoc = (Document) levelsDoc.get(levelKey);
+                    Document statisticsDoc = levelDoc.get("statistics", new Document());
+                    
+                    // Create statistics object if it doesn't exist
+                    if (statisticsDoc == null) {
+                        statisticsDoc = new Document();
+                    }
+                    
+                    // Update statistics
+                    int timeplayed = statisticsDoc.getInteger("timeplayed", 0);
+                    int likes = statisticsDoc.getInteger("likes", 0);
+                    
+                    if (incrementPlays) {
+                        timeplayed++;
+                    }
+                    
+                    if (incrementLikes) {
+                        likes++;
+                    }
+                    
+                    // Store updated values
+                    statisticsDoc.put("timeplayed", timeplayed);
+                    statisticsDoc.put("likes", likes);
+                    levelDoc.put("statistics", statisticsDoc);
+                    
+                    // Update in database
+                    Document updateDoc = new Document("$set", 
+                                      new Document("Levels." + levelKey, levelDoc));
+                    usersCollection.updateOne(new Document("_id", userDoc.get("_id")), updateDoc);
+                    
+                    // Update statistics in memory using reflection since setter methods aren't available
+                    try {
+                        if (levelConfig.getStatistics() == null) {
+                            // Create a new Statistics object using reflection
+                            Class<?> statsClass = Class.forName("thegame.utils.LevelConfig$Statistics");
+                            java.lang.reflect.Constructor<?> constructor = statsClass.getDeclaredConstructor(int.class, int.class);
+                            Object statsObj = constructor.newInstance(timeplayed, likes);
+                            
+                            // Set the statistics field in levelConfig
+                            java.lang.reflect.Field statsField = levelConfig.getClass().getDeclaredField("statistics");
+                            statsField.setAccessible(true);
+                            statsField.set(levelConfig, statsObj);
+                        } else {
+                            // Update existing Statistics object fields
+                            Object statsObj = levelConfig.getStatistics();
+                            if (incrementPlays) {
+                                java.lang.reflect.Field timePlayedField = statsObj.getClass().getDeclaredField("timePlayed");
+                                timePlayedField.setAccessible(true);
+                                timePlayedField.set(statsObj, timeplayed);
+                            }
+                            
+                            if (incrementLikes) {
+                                java.lang.reflect.Field likesField = statsObj.getClass().getDeclaredField("likes");
+                                likesField.setAccessible(true);
+                                likesField.set(statsObj, likes);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Handle silently
+                    }
+                    
+                    break;
+                }
+            } catch (Exception e) {
+                // Handle silently
+            }
+        }).start();
+    }
+    
+    /**
+     * Creates a game screen in verification mode for testing level solvability.
+     * 
+     * @param app The main application instance
+     * @param levelConfig The level configuration to verify
+     * @param verificationMode Whether to run in verification mode
+     */
+    public GameScreen(App app, LevelConfig levelConfig, boolean verificationMode) {
+        this(app, levelConfig);
+        this.isVerificationMode = verificationMode;
+        
+        if (verificationMode) {
+            // Store the level ID in the app for later retrieval
+            app.setMostRecentlyEditedLevelId(levelConfig.getLevelNumber());
+        }
+    }
+
+    /**
+     * Cleans up resources used by the game screen.
+     */
+    public void cleanup() {
+        // Clean up cloud background
+        if (cloudBackground != null) {
+            cloudBackground.cleanup();
+            cloudBackground = null;
+        }
     }
 }

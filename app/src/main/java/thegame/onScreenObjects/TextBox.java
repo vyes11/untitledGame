@@ -5,6 +5,11 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import thegame.utils.FontRenderer;
 
+/**
+ * A text input field that can be rendered on screen.
+ * Provides user interaction features including text entry, focus handling,
+ * and password masking.
+ */
 public class TextBox {
     private float x, y, width, height;
     private String text = "";
@@ -18,6 +23,15 @@ public class TextBox {
     private boolean showCursor = true;
     private static final int BLINK_RATE = 500; // in milliseconds
     
+    /**
+     * Creates a new text box with the specified position, size, and placeholder text.
+     *
+     * @param x The x-coordinate of the top-left corner
+     * @param y The y-coordinate of the top-left corner
+     * @param width The width of the text box
+     * @param height The height of the text box
+     * @param placeholder The placeholder text to display when the text box is empty
+     */
     public TextBox(float x, float y, float width, float height, String placeholder) {
         this.x = x;
         this.y = y;
@@ -32,6 +46,13 @@ public class TextBox {
         }
     }
     
+    /**
+     * Renders the text box with appropriate styling based on its state (focused, hovered).
+     * Also handles cursor blinking when the text box is focused.
+     *
+     * @param mouseX The current x-coordinate of the mouse
+     * @param mouseY The current y-coordinate of the mouse
+     */
     public void render(float mouseX, float mouseY) {
         // Update cursor blink
         long currentTime = System.currentTimeMillis();
@@ -103,6 +124,14 @@ public class TextBox {
         }
     }
     
+    /**
+     * Handles mouse click events on the text box.
+     * Sets focus to the text box if clicked within its bounds.
+     *
+     * @param mouseX The x-coordinate of the mouse click
+     * @param mouseY The y-coordinate of the mouse click
+     * @return true if the click was within the text box bounds, false otherwise
+     */
     public boolean handleMouseClick(float mouseX, float mouseY) {
         boolean wasClicked = mouseX >= x && mouseX <= x + width &&
                            mouseY >= y && mouseY <= y + height;
@@ -111,6 +140,13 @@ public class TextBox {
         return wasClicked;
     }
     
+    /**
+     * Handles keyboard key press events, such as backspace for text deletion.
+     * Only processes events when the text box is focused.
+     *
+     * @param key The key code of the pressed key
+     * @param action The action (press, release, etc.)
+     */
     public void handleKeyPress(int key, int action) {
         if (!isFocused || action != GLFW_PRESS && action != GLFW_REPEAT) {
             return;
@@ -121,6 +157,12 @@ public class TextBox {
         }
     }
     
+    /**
+     * Handles character input events for text entry.
+     * Only processes input when the text box is focused.
+     *
+     * @param codepoint The Unicode code point of the character
+     */
     public void handleCharInput(int codepoint) {
         if (!isFocused) {
             return;
@@ -132,38 +174,84 @@ public class TextBox {
         }
     }
     
+    /**
+     * Gets the current text content of the text box.
+     *
+     * @return The current text
+     */
     public String getText() {
         return text;
     }
     
+    /**
+     * Sets the text content of the text box.
+     *
+     * @param text The new text content
+     */
     public void setText(String text) {
         this.text = text;
     }
     
+    /**
+     * Checks if the text box currently has focus.
+     *
+     * @return true if the text box is focused, false otherwise
+     */
     public boolean isFocused() {
         return isFocused;
     }
     
+    /**
+     * Sets the focus state of the text box.
+     *
+     * @param focused true to give focus to the text box, false to remove focus
+     */
     public void setFocused(boolean focused) {
         this.isFocused = focused;
     }
     
+    /**
+     * Sets whether the text box should mask input (for passwords).
+     * When in password mode, text is displayed as asterisks.
+     *
+     * @param passwordMode true to enable password masking, false to show plain text
+     */
     public void setPasswordMode(boolean passwordMode) {
         this.isPasswordMode = passwordMode;
     }
     
+    /**
+     * Gets the x-coordinate of the text box.
+     *
+     * @return The x-coordinate
+     */
     public float getX() {
         return x;
     }
     
+    /**
+     * Gets the y-coordinate of the text box.
+     *
+     * @return The y-coordinate
+     */
     public float getY() {
         return y;
     }
     
+    /**
+     * Gets the width of the text box.
+     *
+     * @return The width
+     */
     public float getWidth() {
         return width;
     }
     
+    /**
+     * Gets the height of the text box.
+     *
+     * @return The height
+     */
     public float getHeight() {
         return height;
     }

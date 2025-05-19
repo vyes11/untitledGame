@@ -1,0 +1,68 @@
+{
+    "id": 17,
+    "name": "Math Challenge",
+    "settings": {
+        "gridSize": 4,
+        "maxMoves": 12,
+        "moveLimits": {
+            "SWAP": 3,
+            "ROTATE": 9,
+            "FLIP_ROW": 3,
+            "FLIP_COLUMN": 3
+        },
+        "difficulty": "hard",
+        "isNumberMode": true
+    },
+    "grid": [
+        [
+            {"value": 2, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 1, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 7, "editable": true}
+        ],
+        [
+            {"value": 8, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 2, "editable": true}
+        ],
+        [
+            {"value": 9, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 1, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"value": 4, "editable": true},
+            {"value": 8, "editable": true},
+            {"value": 4, "editable": true},
+            {"value": 8, "editable": true}
+        ],
+        [
+            {"value": 2, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 6, "editable": true}
+        ],
+        [
+            {"value": 1, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 5, "editable": true},
+            {"value": 7, "editable": true}
+        ],
+        [
+            {"value": 9, "editable": true},
+            {"value": 6, "editable": true},
+            {"value": 3, "editable": true},
+            {"value": 1, "editable": true}
+        ]
+    ]
+}

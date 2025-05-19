@@ -13,8 +13,14 @@ import thegame.utils.LevelConfig;
 import thegame.utils.MongoDBConnection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Screen for creating and editing game levels.
+ * Allows users to design levels, set parameters, and manage verification.
+ */
 public class LevelEditorScreen implements Screen {
     private final App app;
     private LevelConfig.Cell[][] grid;
@@ -22,6 +28,10 @@ public class LevelEditorScreen implements Screen {
     private int gridSize = 2; // Start with 2x2
     private int maxMoves = 3;
     
+    // Make these static to persist across screen transitions
+    private static LevelConfig staticPendingLevel = null;
+    private static String staticPendingLevelKey = null;
+
     // Selected color/number
     private float[] selectedColor = {0f, 0f, 0f}; // RGB values
     private boolean isNumberMode = false;
@@ -45,6 +55,16 @@ public class LevelEditorScreen implements Screen {
     private Button[][] colorButtons;
     private Button[] numberButtons;
     
+    // UI elements for move limits
+    private Map<String, Integer> moveLimits = new HashMap<>();
+    private Button expandMoveLimitsButton;
+    private boolean showingMoveLimits = false;
+    private Map<String, Button[]> moveLimitButtons = new HashMap<>();
+    private String[] moveTypes = {
+        "SWAP", "FLIP_ROW", "FLIP_COLUMN", "ROTATE",  // Basic moves
+        "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE"        // Math operations
+    };
+    
     // Mouse tracking
     private double currentMouseX = 0, currentMouseY = 0;
 
@@ -52,14 +72,41 @@ public class LevelEditorScreen implements Screen {
     private boolean isEditingExistingLevel = false;
     private LevelConfig levelConfig; // Add field to store original LevelConfig
     
-    // Constructor for creating a new level
+    // Text input for level name
+    private String levelNameInput = "Custom Level";
+    private boolean isEditingName = false;
+    private boolean showCursor = false;
+    private long lastCursorBlink = 0;
+    
+    // Success dialog
+    private boolean showSaveSuccess = false;
+    private String savedLevelId = "";
+    private Button continueButton;
+    
+    // Verification dialog
+    private boolean showVerificationDialog = false;
+    private Button verifyButton;
+    private Button skipVerificationButton;
+    private LevelConfig pendingLevel;
+    private String pendingLevelKey;
+
+    /**
+     * Constructs a new LevelEditorScreen for creating a new level.
+     * 
+     * @param app The main application instance
+     */
     public LevelEditorScreen(App app) {
         this.app = app;
         initializeGrids();
         initUI();
     }
     
-    // New constructor for editing an existing level
+    /**
+     * Constructs a new LevelEditorScreen for editing an existing level.
+     * 
+     * @param app The main application instance
+     * @param existingLevel The existing level to edit
+     */
     public LevelEditorScreen(App app, LevelConfig existingLevel) {
         this.app = app;
         this.isEditingExistingLevel = true;
@@ -78,6 +125,11 @@ public class LevelEditorScreen implements Screen {
         initUI();
     }
     
+    /**
+     * Copies data from an existing level to the editor grids.
+     * 
+     * @param existingLevel The level to copy data from
+     */
     private void copyLevelData(LevelConfig existingLevel) {
         // Copy the grid data
         LevelConfig.Cell[][] sourceGrid = existingLevel.getGrid();
@@ -98,6 +150,9 @@ public class LevelEditorScreen implements Screen {
         }
     }
     
+    /**
+     * Initializes the grid and target pattern arrays.
+     */
     private void initializeGrids() {
         grid = new LevelConfig.Cell[gridSize][gridSize];
         targetPattern = new LevelConfig.Cell[gridSize][gridSize];
@@ -109,30 +164,33 @@ public class LevelEditorScreen implements Screen {
         }
     }
     
+    /**
+     * Initializes the user interface elements.
+     */
     private void initUI() {
         // Initialize font renderer
         fontRenderer = new FontRenderer();
-        fontRenderer.loadFont("F:/temp/theGame/untitledGame/app/src/main/resources/fonts/pf_tempesta_seven_bold.ttf");
+        fontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         
         // Bottom buttons
-        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 100, 40, 0.3f, 0.3f, 0.6f, "Back");
-        saveButton = new Button(App.WINDOW_WIDTH - 120, App.WINDOW_HEIGHT - 60, 100, 40, 0.2f, 0.6f, 0.2f, "Save Level");
+        backButton = new Button(20, App.WINDOW_HEIGHT - 60, 100, 40, 0.7f, 0.3f, 0.6f, "Back"); // Dark pink
+        saveButton = new Button(App.WINDOW_WIDTH - 120, App.WINDOW_HEIGHT - 60, 100, 40, 0.8f, 0.4f, 0.7f, "Save Level"); // Hot pink
         
-        // Control buttons
+        // Control buttons with pink theme
         float leftPanelWidth = App.WINDOW_WIDTH * 0.2f;
-        toggleModeButton = new Button(20, 180, leftPanelWidth - 40, 30, 0.4f, 0.4f, 0.7f, 
+        toggleModeButton = new Button(20, 180, leftPanelWidth - 40, 30, 0.9f, 0.5f, 0.8f, // Secondary pink
                                      isNumberMode ? "Switch to Colors" : "Switch to Numbers");
         
-        toggleEditButton = new Button(App.WINDOW_WIDTH / 2 - 100, 90, 200, 30, 0.4f, 0.4f, 0.7f,
+        toggleEditButton = new Button(App.WINDOW_WIDTH / 2 - 100, 90, 200, 30, 0.8f, 0.4f, 0.7f, // Hot pink
                                      editingTarget ? "Editing: Target Pattern" : "Editing: Initial Grid");
         
-        // Grid size buttons
-        gridSizeButtons[0] = new Button(150, 80, 20, 20, 0.6f, 0.3f, 0.3f, "-");
-        gridSizeButtons[1] = new Button(175, 80, 20, 20, 0.3f, 0.6f, 0.3f, "+");
+        // Grid size buttons with pink theme
+        gridSizeButtons[0] = new Button(200, 80, 20, 20, 0.7f, 0.3f, 0.6f, "-"); // Dark pink
+        gridSizeButtons[1] = new Button(225, 80, 20, 20, 0.9f, 0.5f, 0.8f, "+"); // Secondary pink
         
-        // Max moves buttons
-        maxMovesButtons[0] = new Button(150, 110, 20, 20, 0.6f, 0.3f, 0.3f, "-");
-        maxMovesButtons[1] = new Button(175, 110, 20, 20, 0.3f, 0.6f, 0.3f, "+");
+        // Max moves buttons with pink theme
+        maxMovesButtons[0] = new Button(200, 110, 20, 20, 0.7f, 0.3f, 0.6f, "-"); // Dark pink
+        maxMovesButtons[1] = new Button(225, 110, 20, 20, 0.9f, 0.5f, 0.8f, "+"); // Secondary pink
         
         // Create color buttons
         float[][] colors = {
@@ -149,7 +207,7 @@ public class LevelEditorScreen implements Screen {
         
         colorButtons = new Button[3][3];
         float colorStartX = 20;
-        float colorStartY = 220;
+        float colorStartY = 250; // Changed from 220 to 250
         float colorButtonSize = 30;
         float colorSpacing = 10;
         
@@ -170,7 +228,7 @@ public class LevelEditorScreen implements Screen {
         // Create number buttons
         numberButtons = new Button[10];
         float numberStartX = 20;
-        float numberStartY = 220;
+        float numberStartY = 250; // Changed from 220 to 250
         float numberButtonSize = 30;
         float numberSpacing = 10;
         
@@ -183,18 +241,65 @@ public class LevelEditorScreen implements Screen {
             numberButtons[i] = new Button(x, y, numberButtonSize, numberButtonSize, 0.3f, 0.3f, 0.3f, String.valueOf(i));
         }
         
+        // Initialize move limits with default values
+        for (String moveType : moveTypes) {
+            moveLimits.put(moveType, 5); // Default 5 per move type
+        }
+        
+        // Initialize expand button for move limits
+        expandMoveLimitsButton = new Button(20, 140, leftPanelWidth - 40, 30, 0.8f, 0.4f, 0.7f, // Hot pink
+                                         "Expand Move Limits");
+        
+        // Create buttons for each move limit with pink theme
+        float moveButtonY = 180;
+        for (String moveType : moveTypes) {
+            Button[] buttons = new Button[2];
+            buttons[0] = new Button(200, moveButtonY, 20, 20, 0.7f, 0.3f, 0.6f, "-"); // Dark pink
+            buttons[1] = new Button(225, moveButtonY, 20, 20, 0.9f, 0.5f, 0.8f, "+"); // Secondary pink
+            moveLimitButtons.put(moveType, buttons);
+            moveButtonY += 30; // Space between move type controls
+        }
+        
+        // If editing an existing level, load its move limits
+        if (isEditingExistingLevel && levelConfig != null) {
+            Map<String, Integer> existingLimits = levelConfig.getSettings().getMoveLimits();
+            if (existingLimits != null) {
+                for (Map.Entry<String, Integer> entry : existingLimits.entrySet()) {
+                    moveLimits.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        
         // Update save button text if editing existing level
         if (isEditingExistingLevel) {
             saveButton = new Button(App.WINDOW_WIDTH - 120, App.WINDOW_HEIGHT - 60, 100, 40, 0.2f, 0.6f, 0.2f, "Update Level");
         }
+        
+        // Initialize name input with existing name if editing
+        if (isEditingExistingLevel && levelConfig != null && levelConfig.getName() != null) {
+            levelNameInput = levelConfig.getName();
+        }
+        
+        // Initialize continue button for success dialog
+        continueButton = new Button(App.WINDOW_WIDTH / 2 - 60, App.WINDOW_HEIGHT / 2 + 50, 120, 40, 
+                                  0.9f, 0.5f, 0.8f, "Continue"); // Secondary pink
+    
+        // Initialize verification dialog buttons
+        verifyButton = new Button(App.WINDOW_WIDTH / 2 - 150, App.WINDOW_HEIGHT / 2 + 20, 
+                                120, 40, 0.8f, 0.4f, 0.7f, "Verify Level"); // Hot pink
+        skipVerificationButton = new Button(App.WINDOW_WIDTH / 2 + 30, App.WINDOW_HEIGHT / 2 + 20, 
+                                        120, 40, 0.7f, 0.3f, 0.6f, "Skip Verification"); // Dark pink
     }
 
+    /**
+     * Saves the level to the database.
+     */
     private void saveLevelToDatabase() {
         try {
             // When editing, preserve the existing level ID and key
             int numericId;
             String levelKey = null;
-            String levelName;
+            String levelName = levelNameInput;
             
             if (isEditingExistingLevel) {
                 // Extract or preserve the numeric ID
@@ -207,14 +312,10 @@ public class LevelEditorScreen implements Screen {
                     numericId = (int)(System.currentTimeMillis() % 100000000);
                     levelKey = "level" + numericId;
                 }
-                
-                // Preserve the original level name when editing
-                levelName = levelConfig.getName() != null ? levelConfig.getName() : "Updated Level";
             } else {
                 // Generate new ID for new level
                 numericId = (int)(System.currentTimeMillis() % 100000000);
                 levelKey = "level" + numericId;
-                levelName = "Custom Level";
             }
             
             // Create LevelConfig object with preserved identity when editing
@@ -223,67 +324,107 @@ public class LevelEditorScreen implements Screen {
                 .withName(levelName)
                 .withGrid(grid)
                 .withTargetPattern(targetPattern)
-                .withSettings(new LevelConfig.Settings(gridSize, maxMoves, "custom", isNumberMode))
+                .withSettings(new LevelConfig.Settings(gridSize, moveLimits, "custom", isNumberMode))
                 .withCreator(app.getUsername() != null ? app.getUsername() : "anonymous")
                 .withDescription(isEditingExistingLevel && levelConfig.getDescription() != null ? 
                                  levelConfig.getDescription() : "Custom created level")
                 .withNumberMode(isNumberMode)
+                // Add statistics with initial values of 0
+                .withStatistics(new LevelConfig.Statistics(0, 0))
+                // Add verification status - assume verified if editing an existing level
+                .withVerified(isEditingExistingLevel)
                 .build();
-
+            
+            // Store level in instance variables
+            pendingLevel = level;
+            pendingLevelKey = levelKey;
+            
+            // IMPORTANT: Store in static variables too so they persist across screens
+            staticPendingLevel = level;
+            staticPendingLevelKey = levelKey;
+            
+            // Store level ID in App for later retrieval
+            app.setMostRecentlyEditedLevelId(numericId);
+            
+            // Show verification dialog instead of saving immediately
+            showVerificationDialog = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Finalizes the level save process with verification status.
+     * 
+     * @param verified Whether the level has been verified as solvable
+     */
+    private void finalizeLevel(boolean verified) {
+        try {
+            // Update verification status
+            if (verified) {
+                // Use reflection to set isVerified since we don't want to rebuild the level
+                java.lang.reflect.Field field = pendingLevel.getClass().getDeclaredField("isVerified");
+                field.setAccessible(true);
+                field.set(pendingLevel, true);
+            }
+            
             // Convert to MongoDB document
-            Document levelDoc = level.toDocument();
-            levelDoc.append("id", String.valueOf(numericId));
-
+            Document levelDoc = pendingLevel.toDocument();
+            levelDoc.append("id", String.valueOf(pendingLevel.getLevelNumber()));
+            levelDoc.append("isVerified", verified);
+            
             try (MongoDBConnection mongodb = new MongoDBConnection()) {
                 if (app.isLoggedIn() && app.getUserData() != null) {
                     // User is logged in, save/update under their profile
                     String username = app.getUsername();
                     Document user = app.getUserData();
                     
-                    System.out.println((isEditingExistingLevel ? "Updating" : "Saving") + " level for user: " + username);
-                    
                     // Get or create Levels subdocument
                     Document levelsDoc = user.get("Levels", Document.class);
                     if (levelsDoc == null) {
                         levelsDoc = new Document();
-                        System.out.println("Creating new Levels document for user");
                     }
                     
                     // Add/update the level using the preserved key
-                    levelsDoc.put(levelKey, levelDoc);
-                    System.out.println((isEditingExistingLevel ? "Updated" : "Added") + " level " + levelKey + " to Levels document");
+                    levelsDoc.put(pendingLevelKey, levelDoc);
                     
                     // Update user document
                     Document filter = new Document("username", username);
                     Document update = new Document("$set", new Document("Levels", levelsDoc));
                     
-                    mongodb.getLevelsCollection().updateOne(filter, update);
-                    System.out.println("Level " + (isEditingExistingLevel ? "updated" : "saved") + " under user: " + username);
+                    mongodb.getDatabase().getCollection("data").updateOne(filter, update);
                     
                     // Update cached user data
-                    app.setLoggedInUser(mongodb.getLevelsCollection().find(filter).first());
+                    app.setLoggedInUser(mongodb.getDatabase().getCollection("data").find(filter).first());
                 } else {
                     // Fallback - save as standalone level
                     if (isEditingExistingLevel) {
-                        mongodb.getLevelsCollection().replaceOne(
-                            new Document("id", String.valueOf(numericId)),
+                        mongodb.getDatabase().getCollection("levels").replaceOne(
+                            new Document("id", String.valueOf(pendingLevel.getLevelNumber())),
                             levelDoc
                         );
                     } else {
-                        mongodb.getLevelsCollection().insertOne(levelDoc);
+                        mongodb.getDatabase().getCollection("levels").insertOne(levelDoc);
                     }
-                    System.out.println("Level " + (isEditingExistingLevel ? "updated" : "saved") + " as standalone (not logged in)");
                 }
                 
-                // Return to online level screen with "My Levels" tab active
-                app.setCurrentScreen(new OnlineLevelSelectScreen(app, true));
+                // After successful save, store ID and show success dialog
+                savedLevelId = String.valueOf(pendingLevel.getLevelNumber());
+                showSaveSuccess = true;
+                showVerificationDialog = false;
+                
+                // Don't return to level select screen yet - let user click continue
             }
         } catch (Exception e) {
-            System.err.println("Error saving level: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Gets the next available level ID from the database.
+     * 
+     * @return The next available level ID
+     */
     private int getNextLevelId() {
         try (MongoDBConnection mongodb = new MongoDBConnection()) {
             MongoCollection<Document> collection = mongodb.getDatabase()
@@ -297,23 +438,101 @@ public class LevelEditorScreen implements Screen {
 
             return maxDoc != null ? maxDoc.getInteger("id", 0) + 1 : 1;
         } catch (Exception e) {
-            System.err.println("Error getting next level ID: " + e.getMessage());
             return 1;
         }
     }
 
+    /**
+     * Renders the level editor screen.
+     */
     @Override
     public void render() {
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+        glClearColor(1.0f, 0.7f, 0.9f, 1.0f); // Primary pink
         glClear(GL_COLOR_BUFFER_BIT);
         
         // Title
-        fontRenderer.renderCenteredText("Level Editor", App.WINDOW_WIDTH / 2, 20, 2.0f);
+        fontRenderer.renderCenteredText("Level Editor", App.WINDOW_WIDTH / 2 - 100, 20, 2.0f, 0.8f, 0.2f, 0.5f, 1.0f); // Pink-hued text
+        
+        // If showing save success dialog, render that and nothing else
+        if (showSaveSuccess) {
+            // Draw overlay
+            glColor4f(0.9f, 0.5f, 0.8f, 0.7f); // Semi-transparent pink
+            glBegin(GL_QUADS);
+            glVertex2f(0, 0);
+            glVertex2f(App.WINDOW_WIDTH, 0);
+            glVertex2f(App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
+            glVertex2f(0, App.WINDOW_HEIGHT);
+            glEnd();
+            
+            // Draw dialog box
+            float boxWidth = 400;
+            float boxHeight = 200;
+            float boxX = App.WINDOW_WIDTH / 2 - boxWidth / 2;
+            float boxY = App.WINDOW_HEIGHT / 2 - boxHeight / 2;
+            
+            glColor3f(0.8f, 0.4f, 0.7f); // Hot pink
+            glBegin(GL_QUADS);
+            glVertex2f(boxX, boxY);
+            glVertex2f(boxX + boxWidth, boxY);
+            glVertex2f(boxX + boxWidth, boxY + boxHeight);
+            glVertex2f(boxX, boxY + boxHeight);
+            glEnd();
+            
+            // Draw success message - properly centered
+            fontRenderer.renderCenteredText("Level Saved Successfully!", 
+                                          App.WINDOW_WIDTH / 2, boxY + 50, 1.4f);
+            fontRenderer.renderCenteredText("Level ID: " + savedLevelId, 
+                                          App.WINDOW_WIDTH / 2, boxY + 100, 1.2f);
+            
+            // Draw continue button
+            continueButton.render((float)currentMouseX, (float)currentMouseY);
+            return;
+        }
+        
+        // If showing verification dialog, render that instead of success dialog
+        if (showVerificationDialog) {
+            // Draw overlay
+            glColor4f(0.9f, 0.5f, 0.8f, 0.7f); // Semi-transparent pink
+            glBegin(GL_QUADS);
+            glVertex2f(0, 0);
+            glVertex2f(App.WINDOW_WIDTH, 0);
+            glVertex2f(App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
+            glVertex2f(0, App.WINDOW_HEIGHT);
+            glEnd();
+            
+            // Draw dialog box
+            float boxWidth = 400;
+            float boxHeight = 200;
+            float boxX = App.WINDOW_WIDTH / 2 - boxWidth / 2;
+            float boxY = App.WINDOW_HEIGHT / 2 - boxHeight / 2;
+            
+            glColor3f(0.8f, 0.4f, 0.7f); // Hot pink
+            glBegin(GL_QUADS);
+            glVertex2f(boxX, boxY);
+            glVertex2f(boxX + boxWidth, boxY);
+            glVertex2f(boxX + boxWidth, boxY + boxHeight);
+            glVertex2f(boxX, boxY + boxHeight);
+            glEnd();
+            
+            // Draw message
+            fontRenderer.renderCenteredText("Verify Your Level", 
+                                         App.WINDOW_WIDTH / 2 - 130, boxY - 40, 1.4f);
+            fontRenderer.renderCenteredText("Play through your level to verify it's solvable", 
+                                         App.WINDOW_WIDTH / 2, boxY + 80, 1.0f);
+            fontRenderer.renderCenteredText("or skip verification\n(level will be marked as unverified)", 
+                                         App.WINDOW_WIDTH / 2, boxY + 110, 1.0f);
+            
+            // Draw buttons
+            verifyButton.render((float)currentMouseX, (float)currentMouseY);
+            skipVerificationButton.render((float)currentMouseX, (float)currentMouseY);
+            
+            return;
+        }
         
         // Draw left panel background
         float leftPanelWidth = App.WINDOW_WIDTH * 0.2f;
         float leftPanelHeight = App.WINDOW_HEIGHT - 100;
-        glColor4f(0.15f, 0.15f, 0.25f, 1.0f);
+        glColor4f(0.9f, 0.5f, 0.8f, 1.0f); // Secondary pink
         glBegin(GL_QUADS);
         glVertex2f(10, 50);
         glVertex2f(10 + leftPanelWidth, 50);
@@ -322,7 +541,7 @@ public class LevelEditorScreen implements Screen {
         glEnd();
         
         // Render settings section
-        fontRenderer.renderText("Level Settings", 20, 60, 1.2f);
+        fontRenderer.renderText("Level Settings", 20, 40, 1.2f);
         
         // Grid size control
         fontRenderer.renderText("Grid Size: " + gridSize, 20, 85, 1.0f);
@@ -334,49 +553,93 @@ public class LevelEditorScreen implements Screen {
         maxMovesButtons[0].render((float)currentMouseX, (float)currentMouseY);
         maxMovesButtons[1].render((float)currentMouseX, (float)currentMouseY);
         
-        // Mode toggle button
-        toggleModeButton.render((float)currentMouseX, (float)currentMouseY);
+        // Render move limits button with more prominent appearance
+        expandMoveLimitsButton = new Button(20, 140, leftPanelWidth - 40, 30, 
+                                 showingMoveLimits ? 0.5f : 0.4f, 
+                                 showingMoveLimits ? 0.7f : 0.4f, 
+                                 0.7f, 
+                                 showingMoveLimits ? "Collapse Move Limits" : "Expand Move Limits");
+        expandMoveLimitsButton.render((float)currentMouseX, (float)currentMouseY);
         
-        // Color/Number selector
-        if (isNumberMode) {
-            fontRenderer.renderText("Select Number:", 20, 200, 1.0f);
-            for (int i = 0; i < numberButtons.length; i++) {
-                if (selectedNumber == i) {
-                    // Highlight selected number
-                    numberButtons[i].setCaptionColor(1.0f, 1.0f, 0.0f, 1.0f);
-                } else {
-                    numberButtons[i].setCaptionColor(1.0f, 1.0f, 1.0f, 1.0f);
+        // Render move limits section if expanded, otherwise show color/number selectors
+        if (showingMoveLimits) {
+            // Draw background for move limits section to make it stand out
+            float moveSection_width = leftPanelWidth - 20;
+            float moveSection_height = moveTypes.length * 30 + 20;
+            float moveSection_x = 15;
+            float moveSection_y = 175;
+            
+            glColor3f(0.8f, 0.4f, 0.7f); // Hot pink
+            glBegin(GL_QUADS);
+            glVertex2f(moveSection_x, moveSection_y);
+            glVertex2f(moveSection_x + moveSection_width, moveSection_y);
+            glVertex2f(moveSection_x + moveSection_width, moveSection_y + moveSection_height);
+            glVertex2f(moveSection_x, moveSection_y + moveSection_height);
+            glEnd();
+            
+            // Render move limits controls
+            float moveTextY = 185;
+            for (String moveType : moveTypes) {
+                // Format the move type name for display
+                String prettyName = moveType.replace('_', ' ');
+                int limit = moveLimits.getOrDefault(moveType, 5);
+                
+                fontRenderer.renderText(prettyName + ": " + limit, 25, moveTextY, 1.0f);
+                
+                // Render +/- buttons
+                Button[] buttons = moveLimitButtons.get(moveType);
+                if (buttons != null) {
+                    buttons[0].render((float)currentMouseX, (float)currentMouseY);
+                    buttons[1].render((float)currentMouseX, (float)currentMouseY);
                 }
-                numberButtons[i].render((float)currentMouseX, (float)currentMouseY);
+                
+                moveTextY += 30;
             }
         } else {
-            fontRenderer.renderText("Select Color:", 20, 200, 1.0f);
-            for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    Button button = colorButtons[row][col];
-                    button.render((float)currentMouseX, (float)currentMouseY);
-                    
-                    // Draw selection outline if this is the selected color
-                    int index = row * 3 + col;
-                    float[] color = {
-                        colorButtons[row][col].getR(),
-                        colorButtons[row][col].getG(),
-                        colorButtons[row][col].getB()
-                    };
-                    
-                    if (color[0] == selectedColor[0] && 
-                        color[1] == selectedColor[1] && 
-                        color[2] == selectedColor[2]) {
-                        // Draw outline around selected color
-                        glColor3f(1.0f, 1.0f, 1.0f);
-                        glLineWidth(2.0f);
-                        glBegin(GL_LINE_LOOP);
-                        glVertex2f(button.getX() - 2, button.getY() - 2);
-                        glVertex2f(button.getX() + button.getWidth() + 2, button.getY() - 2);
-                        glVertex2f(button.getX() + button.getWidth() + 2, button.getY() + button.getHeight() + 2);
-                        glVertex2f(button.getX() - 2, button.getY() + button.getHeight() + 2);
-                        glEnd();
-                        glLineWidth(1.0f);
+            // Mode toggle button - only show when move limits are collapsed
+            toggleModeButton.render((float)currentMouseX, (float)currentMouseY);
+            
+            // Only render color/number selector when move limits are not expanded
+            if (isNumberMode) {
+                fontRenderer.renderText("Select Number:", 20, 230, 1.0f); // Changed from 200 to 230
+                for (int i = 0; i < numberButtons.length; i++) {
+                    if (selectedNumber == i) {
+                        // Highlight selected number
+                        numberButtons[i].setCaptionColor(1.0f, 1.0f, 0.0f, 1.0f);
+                    } else {
+                        numberButtons[i].setCaptionColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    }
+                    numberButtons[i].render((float)currentMouseX, (float)currentMouseY);
+                }
+            } else {
+                fontRenderer.renderText("Select Color:", 20, 230, 1.0f); // Changed from 200 to 230
+                for (int row = 0; row < 3; row++) {
+                    for (int col = 0; col < 3; col++) {
+                        Button button = colorButtons[row][col];
+                        button.render((float)currentMouseX, (float)currentMouseY);
+                        
+                        // Draw selection outline if this is the selected color
+                        int index = row * 3 + col;
+                        float[] color = {
+                            colorButtons[row][col].getR(),
+                            colorButtons[row][col].getG(),
+                            colorButtons[row][col].getB()
+                        };
+                        
+                        if (color[0] == selectedColor[0] && 
+                            color[1] == selectedColor[1] && 
+                            color[2] == selectedColor[2]) {
+                            // Draw outline around selected color
+                            glColor3f(1.0f, 1.0f, 1.0f);
+                            glLineWidth(2.0f);
+                            glBegin(GL_LINE_LOOP);
+                            glVertex2f(button.getX() - 2, button.getY() - 2);
+                            glVertex2f(button.getX() + button.getWidth() + 2, button.getY() - 2);
+                            glVertex2f(button.getX() + button.getWidth() + 2, button.getY() + button.getHeight() + 2);
+                            glVertex2f(button.getX() - 2, button.getY() + button.getHeight() + 2);
+                            glEnd();
+                            glLineWidth(1.0f);
+                        }
                     }
                 }
             }
@@ -393,11 +656,11 @@ public class LevelEditorScreen implements Screen {
         float centerX = (App.WINDOW_WIDTH + leftPanelWidth) / 2;
         float initialGridX = centerX - totalGridSize - GRID_SPACING;
         float targetGridX = centerX + GRID_SPACING;
-        float gridY = 150;
+        float gridY = 220; // Changed from 150 to 220 (pushed down by 70 pixels)
         
-        // Draw labels
-        fontRenderer.renderCenteredText("Initial Grid", initialGridX + totalGridSize/2, gridY - 30, 1.2f);
-        fontRenderer.renderCenteredText("Target Pattern", targetGridX + totalGridSize/2, gridY - 30, 1.2f);
+        // Draw labels - moved 50 pixels left
+        fontRenderer.renderCenteredText("Initial Grid", (initialGridX + totalGridSize/2) - 120, gridY - 70, 1.2f);
+        fontRenderer.renderCenteredText("Target Pattern", (targetGridX + totalGridSize/2) - 80, gridY - 70, 1.2f);
         
         // Draw both grids
         drawGrid(grid, initialGridX, gridY, !editingTarget);
@@ -406,13 +669,96 @@ public class LevelEditorScreen implements Screen {
         // Render bottom buttons
         backButton.render((float)currentMouseX, (float)currentMouseY);
         saveButton.render((float)currentMouseX, (float)currentMouseY);
+        
+        // Render level name input field
+        float nameFieldX = App.WINDOW_WIDTH / 2 - 150;
+        float nameFieldY = 50;
+        float nameFieldWidth = 300;
+        float nameFieldHeight = 30;
+        
+        // Draw name field background with border
+        glColor3f(0.7f, 0.3f, 0.6f); // Dark pink
+        glBegin(GL_QUADS);
+        glVertex2f(nameFieldX, nameFieldY);
+        glVertex2f(nameFieldX + nameFieldWidth, nameFieldY);
+        glVertex2f(nameFieldX + nameFieldWidth, nameFieldY + nameFieldHeight);
+        glVertex2f(nameFieldX, nameFieldY + nameFieldHeight);
+        glEnd();
+        
+        // Draw border, highlight if active
+        if (isEditingName) {
+            glColor3f(1.0f, 0.4f, 0.7f); // Accent pink
+        } else {
+            glColor3f(0.8f, 0.4f, 0.7f); // Hot pink
+        }
+        
+        glLineWidth(2.0f);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(nameFieldX, nameFieldY);
+        glVertex2f(nameFieldX + nameFieldWidth, nameFieldY);
+        glVertex2f(nameFieldX + nameFieldWidth, nameFieldY + nameFieldHeight);
+        glVertex2f(nameFieldX, nameFieldY + nameFieldHeight);
+        glEnd();
+        glLineWidth(1.0f);
+        
+        // Draw label
+        fontRenderer.renderText("Level Name:", nameFieldX - 200, nameFieldY + 8, 1.0f);
+        
+        // Draw text with cursor if editing
+        String displayText = levelNameInput;
+        if (isEditingName) {
+            // Handle cursor blinking
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastCursorBlink > 500) {
+                showCursor = !showCursor;
+                lastCursorBlink = currentTime;
+            }
+            
+            if (showCursor) {
+                displayText += "|";
+            }
+        }
+        
+        fontRenderer.renderText(displayText, nameFieldX + 10, nameFieldY + 8, 1.0f);
+        
+        // Render success dialog if needed
+        if (showSaveSuccess) {
+            float dialogWidth = 300;
+            float dialogHeight = 150;
+            float dialogX = App.WINDOW_WIDTH / 2 - dialogWidth / 2;
+            float dialogY = App.WINDOW_HEIGHT / 2 - dialogHeight / 2;
+            
+            // Dialog background
+            glColor4f(0.1f, 0.1f, 0.1f, 0.9f);
+            glBegin(GL_QUADS);
+            glVertex2f(dialogX, dialogY);
+            glVertex2f(dialogX + dialogWidth, dialogY);
+            glVertex2f(dialogX + dialogWidth, dialogY + dialogHeight);
+            glVertex2f(dialogX, dialogY + dialogHeight);
+            glEnd();
+            
+            // Dialog text
+            fontRenderer.renderCenteredText("Level Saved!", dialogX, dialogY + dialogHeight - 40, 1.2f);
+            fontRenderer.renderCenteredText("Level ID: " + savedLevelId, dialogX, dialogY + dialogHeight - 70, 1.0f);
+            
+            // Continue button
+            continueButton.render((float)currentMouseX, (float)currentMouseY);
+        }
     }
     
+    /**
+     * Draws a grid for editing.
+     * 
+     * @param gridToRender The grid data to render
+     * @param startX X coordinate of the top-left corner
+     * @param startY Y coordinate of the top-left corner
+     * @param isActive Whether this grid is being actively edited
+     */
     private void drawGrid(LevelConfig.Cell[][] gridToRender, float startX, float startY, boolean isActive) {
         float gridTotalSize = CELL_SIZE * gridSize;
         
         // Draw grid background
-        glColor3f(0.2f, 0.2f, 0.2f);
+        glColor3f(0.7f, 0.3f, 0.6f); // Dark pink
         glBegin(GL_QUADS);
         glVertex2f(startX - 5, startY - 5);
         glVertex2f(startX + gridTotalSize + 5, startY - 5);
@@ -422,7 +768,7 @@ public class LevelEditorScreen implements Screen {
         
         // Draw highlight around active grid
         if (isActive) {
-            glColor3f(0.9f, 0.9f, 0.3f);
+            glColor3f(1.0f, 0.4f, 0.7f); // Accent pink
             glLineWidth(2.0f);
             glBegin(GL_LINE_LOOP);
             glVertex2f(startX - 8, startY - 8);
@@ -495,10 +841,87 @@ public class LevelEditorScreen implements Screen {
         }
     }
     
+    /**
+     * Gets the pending level key.
+     * 
+     * @return The pending level key
+     */
+    public static String getPendingLevelKey() {
+        return staticPendingLevelKey;
+    }
+    
+    /**
+     * Gets the pending level.
+     * 
+     * @return The pending level
+     */
+    public static LevelConfig getPendingLevel() {
+        return staticPendingLevel;
+    }
+    
+    /**
+     * Handles mouse click events.
+     * 
+     * @param mouseX X coordinate of the mouse click
+     * @param mouseY Y coordinate of the mouse click
+     */
     @Override
     public void handleMouseClick(double mouseX, double mouseY) {
         float mx = (float)mouseX;
         float my = (float)mouseY;
+        
+        // Check verification dialog buttons first
+        if (showVerificationDialog) {
+            if (verifyButton.handleMouseClick(mx, my)) {
+                // Save the level to DB first (unverified) before launching verification
+                if (pendingLevel != null) {
+                    // Save level to database with unverified status first
+                    saveLevelBeforeVerification();
+                    
+                    // Ensure static variables are updated before transitioning
+                    staticPendingLevel = pendingLevel;
+                    staticPendingLevelKey = pendingLevelKey;
+                    
+                    // Update App's most recently edited level ID
+                    app.setMostRecentlyEditedLevelId(pendingLevel.getLevelNumber());
+                    
+                    app.setCurrentScreen(new GameScreen(app, pendingLevel, true));
+                } else {
+                    System.err.println("ERROR: Pending level is null, cannot verify");
+                }
+                return;
+            }
+            
+            if (skipVerificationButton.handleMouseClick(mx, my)) {
+                // Save the level without verification
+                finalizeLevel(false);
+                return;
+            }
+            
+            return; // Block other clicks while dialog is open
+        }
+        
+        // If showing success dialog, only handle continue button
+        if (showSaveSuccess) {
+            if (continueButton.handleMouseClick(mx, my)) {
+                // Go to the level select screen
+                app.setCurrentScreen(new OnlineLevelSelectScreen(app, true));
+            }
+            return;
+        }
+        
+        // Check for name field click
+        float nameFieldX = App.WINDOW_WIDTH / 2 - 150;
+        float nameFieldY = 50;
+        float nameFieldWidth = 300;
+        float nameFieldHeight = 30;
+        
+        if (mx >= nameFieldX && mx <= nameFieldX + nameFieldWidth &&
+            my >= nameFieldY && my <= nameFieldY + nameFieldHeight) {
+            isEditingName = true;
+        } else {
+            isEditingName = false;
+        }
         
         // Check bottom buttons
         if (backButton.handleMouseClick(mx, my)) {
@@ -549,6 +972,37 @@ public class LevelEditorScreen implements Screen {
             return;
         }
         
+        // Add check for expand move limits button
+        if (expandMoveLimitsButton.handleMouseClick(mx, my)) {
+            showingMoveLimits = !showingMoveLimits;
+            expandMoveLimitsButton.setCaption(showingMoveLimits ? "Collapse Move Limits" : "Expand Move Limits");
+            return;
+        }
+        
+        // Handle move limit buttons if they're visible
+        if (showingMoveLimits) {
+            for (String moveType : moveTypes) {
+                Button[] buttons = moveLimitButtons.get(moveType);
+                if (buttons != null) {
+                    // Check minus button
+                    if (buttons[0].handleMouseClick(mx, my)) {
+                        int currentLimit = moveLimits.getOrDefault(moveType, 5);
+                        if (currentLimit > 0) {
+                            moveLimits.put(moveType, currentLimit - 1);
+                        }
+                        return;
+                    }
+                    
+                    // Check plus button
+                    if (buttons[1].handleMouseClick(mx, my)) {
+                        int currentLimit = moveLimits.getOrDefault(moveType, 5);
+                        moveLimits.put(moveType, currentLimit + 1);
+                        return;
+                    }
+                }
+            }
+        }
+        
         // Check color/number selection
         if (isNumberMode) {
             for (int i = 0; i < numberButtons.length; i++) {
@@ -579,7 +1033,7 @@ public class LevelEditorScreen implements Screen {
         float centerX = (App.WINDOW_WIDTH + App.WINDOW_WIDTH * 0.2f) / 2;
         float initialGridX = centerX - gridTotalSize - GRID_SPACING;
         float targetGridX = centerX + GRID_SPACING;
-        float gridY = 150;
+        float gridY = 220; // Changed from 150 to 220 (pushed down by 70 pixels to match render method)
         
         float activeGridX = editingTarget ? targetGridX : initialGridX;
         
@@ -601,24 +1055,106 @@ public class LevelEditorScreen implements Screen {
         }
     }
 
+    /**
+     * Updates the current mouse position.
+     * 
+     * @param mouseX X coordinate of the mouse
+     * @param mouseY Y coordinate of the mouse
+     */
     @Override
     public void handleMouseMove(double mouseX, double mouseY) {
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
     }
 
+    /**
+     * Handles mouse release events.
+     * 
+     * @param mouseX X coordinate of the mouse release
+     * @param mouseY Y coordinate of the mouse release
+     */
     @Override
     public void handleMouseRelease(double mouseX, double mouseY) {
         // Not needed
     }
 
+    /**
+     * Handles key press events.
+     * 
+     * @param key The key code
+     * @param action The action (press, release, etc.)
+     */
     @Override
     public void handleKeyPress(int key, int action) {
-        // Not needed
+        if (isEditingName && action == 1) { // 1 = press
+            if (key == 259) { // BACKSPACE
+                if (levelNameInput.length() > 0) {
+                    levelNameInput = levelNameInput.substring(0, levelNameInput.length() - 1);
+                }
+            } else if (key == 257) { // ENTER
+                isEditingName = false;
+            }
+        }
     }
 
+    /**
+     * Handles character input events for the level name field.
+     * 
+     * @param codepoint The Unicode code point of the character
+     */
     @Override
     public void handleCharInput(int codepoint) {
-        // Not needed for level select as it has no text input fields
+        if (isEditingName) {
+            // Convert codepoint to character
+            char c = (char)codepoint;
+            
+            // Only allow alphanumeric and some special characters
+            if (Character.isLetterOrDigit(c) || c == ' ' || c == '-' || c == '_') {
+                // Don't let the name get too long
+                if (levelNameInput.length() < 25) {
+                    levelNameInput += c;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Saves the level to the database with unverified status before verification.
+     */
+    private void saveLevelBeforeVerification() {
+        try {
+            // Convert to MongoDB document
+            Document levelDoc = pendingLevel.toDocument();
+            levelDoc.append("id", String.valueOf(pendingLevel.getLevelNumber()));
+            levelDoc.append("isVerified", false); // Initially unverified
+            
+            try (MongoDBConnection mongodb = new MongoDBConnection()) {
+                if (app.isLoggedIn() && app.getUserData() != null) {
+                    // User is logged in, save under their profile
+                    String username = app.getUsername();
+                    Document user = app.getUserData();
+                    
+                    // Get or create Levels subdocument
+                    Document levelsDoc = user.get("Levels", Document.class);
+                    if (levelsDoc == null) {
+                        levelsDoc = new Document();
+                    }
+                    
+                    // Add the level using the preserved key
+                    levelsDoc.put(pendingLevelKey, levelDoc);
+                    
+                    // Update user document
+                    Document filter = new Document("username", username);
+                    Document update = new Document("$set", new Document("Levels", levelsDoc));
+                    
+                    mongodb.getDatabase().getCollection("data").updateOne(filter, update);
+                    
+                    // Update cached user data to reflect the new level
+                    app.setLoggedInUser(mongodb.getDatabase().getCollection("data").find(filter).first());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

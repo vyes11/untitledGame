@@ -1,0 +1,50 @@
+{
+    "id": 12,
+    "name": "Number Operations",
+    "settings": {
+        "gridSize": 3,
+        "maxMoves": 6,
+        "moveLimits": {
+            "SWAP": 2,
+            "ROTATE": 4,
+            "FLIP_ROW": 2,
+            "FLIP_COLUMN": 2
+        },
+        "difficulty": "medium",
+        "isNumberMode": true
+    },
+    "grid": [
+        [
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 5, "editable": false},
+            {"value": 2, "editable": true}
+        ],
+        [
+            {"value": 6, "editable": true},
+            {"value": 1, "editable": true},
+            {"value": 8, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"value": 4, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 8, "editable": true}
+        ],
+        [
+            {"value": 6, "editable": true},
+            {"value": 5, "editable": false},
+            {"value": 4, "editable": true}
+        ],
+        [
+            {"value": 3, "editable": true},
+            {"value": 2, "editable": true},
+            {"value": 1, "editable": true}
+        ]
+    ]
+}

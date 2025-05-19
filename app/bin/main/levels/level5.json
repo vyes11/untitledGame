@@ -1,0 +1,67 @@
+{
+    "id": 5,
+    "name": "Four Corners",
+    "settings": {
+        "gridSize": 4,
+        "maxMoves": 6,
+        "moveLimits": {
+            "SWAP": 6,
+            "ROTATE": 2,
+            "FLIP_ROW": 2,
+            "FLIP_COLUMN": 2
+        },
+        "difficulty": "medium"
+    },
+    "grid": [
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ]
+    ],
+    "targetPattern": [
+        [
+            {"red": 1.0, "green": 0.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 0.0, "blue": 1.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.5, "green": 0.5, "blue": 0.5, "editable": false},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ],
+        [
+            {"red": 0.0, "green": 0.0, "blue": 1.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 0.0, "green": 1.0, "blue": 0.0, "editable": true},
+            {"red": 1.0, "green": 1.0, "blue": 0.0, "editable": true}
+        ]
+    ]
+}
