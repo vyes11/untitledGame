@@ -1,15 +1,13 @@
 package thegame.onScreenObjects;
 
-import org.lwjgl.opengl.GL;
+import java.nio.FloatBuffer;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
-import java.nio.FloatBuffer;
-
-import thegame.*;
 import thegame.utils.FontRenderer;
 import thegame.utils.GLDebugger;
 
@@ -69,7 +67,7 @@ public class Button {
         // This ensures we only create font resources on the main thread
         if (sharedFontRenderer == null) {
             sharedFontRenderer = new FontRenderer();
-            sharedFontRenderer.loadFont("F:/temp/theGame/untitledGame/app/src/main/resources/fonts/pf_tempesta_seven_bold.ttf");
+            sharedFontRenderer.loadFont("/fonts/pf_tempesta_seven_bold.ttf");
         }
         
         this.fontRenderer = sharedFontRenderer;

@@ -1,6 +1,19 @@
 package thegame.screens;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor4f;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLineWidth;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glRotatef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+import static org.lwjgl.opengl.GL11.glVertex2f;
+
 import thegame.App;
 import thegame.Screen;
 import thegame.onScreenObjects.Button;
@@ -41,8 +54,11 @@ public class TitleScreen implements Screen {
         int spacing = 60;
         
         playButton = new Button(centerX, startY, buttonWidth, buttonHeight, 0.9f, 0.5f, 0.8f, "Play"); // Secondary pink
-        loginButton = new Button(centerX, startY + spacing, buttonWidth, buttonHeight, 0.7f, 0.3f, 0.6f, // Dark pink
-                               app.isLoggedIn() ? "Logout" : "Login");
+        
+        // Create login button with grey color to indicate disabled state
+        loginButton = new Button(centerX, startY + spacing, buttonWidth, buttonHeight, 0.5f, 0.5f, 0.5f, // Grey color
+                           app.isLoggedIn() ? "Logout" : "Login");
+        
         settingsButton = new Button(centerX, startY + spacing * 2, buttonWidth, buttonHeight, 1.0f, 0.4f, 0.7f, "Settings"); // Accent pink
         quitButton = new Button(centerX, startY + spacing * 3, buttonWidth, buttonHeight, 0.8f, 0.2f, 0.5f, "Quit Game"); // Dark accent
     }
@@ -132,7 +148,10 @@ public class TitleScreen implements Screen {
         
         if (playButton.handleMouseClick(mx, my)) {
             app.setCurrentScreen(new LevelSelect(app));
-        } else if (loginButton.handleMouseClick(mx, my)) {
+        } 
+        // Remove or comment out login button click handling
+        /*
+        else if (loginButton.handleMouseClick(mx, my)) {
             if (app.isLoggedIn()) {
                 // Logout
                 app.clearLoggedInUser();
@@ -141,7 +160,9 @@ public class TitleScreen implements Screen {
                 // Show login screen
                 app.setCurrentScreen(new LoginScreen(app));
             }
-        } else if (settingsButton.handleMouseClick(mx, my)) {
+        }
+        */
+        else if (settingsButton.handleMouseClick(mx, my)) {
             app.setCurrentScreen(new SettingsScreen(app));
         } else if (quitButton.handleMouseClick(mx, my)) {
             System.exit(0);

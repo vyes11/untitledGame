@@ -1,28 +1,51 @@
 package thegame.screens;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.glfw.GLFW.*;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
+import org.bson.Document;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glColor4f;
+import static org.lwjgl.opengl.GL11.glDeleteTextures;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLineWidth;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glTexCoord2f;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 
 import com.google.gson.Gson;
+import com.mongodb.client.MongoCollection;
 
 import thegame.App;
 import thegame.Screen;
-import thegame.utils.FontRenderer;
 import thegame.onScreenObjects.Button;
-import thegame.utils.LevelConfig;
-import thegame.utils.LevelConfig.MoveType;
-import thegame.utils.MongoDBConnection;
 import thegame.utils.CloudBackground;
-import org.bson.Document;
-import com.mongodb.client.MongoCollection;
+import thegame.utils.FontRenderer;
+import thegame.utils.LevelConfig;
+import thegame.utils.LevelConfig.MoveType; // Add this import if not already present
+import thegame.utils.MongoDBConnection;
+import thegame.utils.TextureLoader;
 
 /**
  * The main game screen where the user plays the puzzle game.
@@ -101,6 +124,19 @@ public class GameScreen implements Screen {
     // Cloud background
     private CloudBackground cloudBackground;
 
+    // Add fields for tutorial sprite
+    private boolean isFirstLevel = false;
+    private int tutorialSpriteTexture = -1;
+    private TextureLoader textureLoader;
+    
+    // Tutorial state tracking
+    private int tutorialState = 0; // 0: Initial, 1: Click instruction, 2: Completed
+    private boolean tutorialActive = false;
+    private float tutorialSpriteX;
+    private float tutorialSpriteY;
+    private float tutorialSpriteWidth = 200;
+    private float tutorialSpriteHeight = 150;
+
     /**
      * Constructs a new game screen with the specified level configuration.
      * 
@@ -111,6 +147,9 @@ public class GameScreen implements Screen {
     public GameScreen(App app, LevelConfig levelConfig) {
         this.app = app;
         this.levelConfig = levelConfig; // Store the levelConfig
+        
+        // Check if this is the first level
+        this.isFirstLevel = (levelConfig.getLevelNumber() == 1);
         
         if (levelConfig == null) {
             throw new IllegalArgumentException("levelConfig cannot be null");
@@ -152,6 +191,21 @@ public class GameScreen implements Screen {
         
         // Initialize cloud background
         cloudBackground = new CloudBackground(CloudBackground.RenderStyle.SIMPLE_BLOTS);
+        
+        // Load tutorial sprite if this is the first level
+        if (isFirstLevel) {
+            try {
+                textureLoader = new TextureLoader();
+                tutorialSpriteTexture = textureLoader.loadTexture("/tutorialSprite.png");
+                tutorialActive = true; // Activate tutorial for first level
+                
+                // Position at bottom middle
+                tutorialSpriteX = (App.WINDOW_WIDTH - tutorialSpriteWidth) / 2;
+                tutorialSpriteY = App.WINDOW_HEIGHT - tutorialSpriteHeight - 20; // 20px from bottom
+            } catch (Exception e) {
+                System.err.println("Error loading tutorial sprite: " + e.getMessage());
+            }
+        }
         
         initUI();
     }
@@ -491,7 +545,17 @@ public class GameScreen implements Screen {
                 controlToggleButton.render((float)currentMouseX, (float)currentMouseY);
             }
             
-            // Handle victory screen
+            // Render tutorial if on first level and tutorial is active
+            if (isFirstLevel && tutorialActive) {
+                renderTutorialOverlay();
+            } else {
+                // Render tutorial sprite only if not in tutorial mode
+                if (isFirstLevel && tutorialSpriteTexture != -1) {
+                    renderSprite(tutorialSpriteTexture, tutorialSpriteX, tutorialSpriteY, tutorialSpriteWidth, tutorialSpriteHeight);
+                }
+            }
+            
+            // Handle victory/failure screens
             if (hasWon) {
                 // Check if this is verification mode
                 if (isVerificationMode) {
@@ -574,6 +638,82 @@ public class GameScreen implements Screen {
         }
     }
     
+    /**
+     * Renders the tutorial overlay with greyed out screen except for the sprite.
+     */
+    private void renderTutorialOverlay() {
+ // Enable alpha blending for transparency
+    glEnable(GL11.GL_BLEND);
+    glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Draw semi-transparent grey overlay for the entire screen
+    glColor4f(0.2f, 0.2f, 0.2f, 0.3f);
+    glBegin(GL_QUADS);
+    glVertex2f(0, 0);
+    glVertex2f(App.WINDOW_WIDTH, 0);
+    glVertex2f(App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
+    glVertex2f(0, App.WINDOW_HEIGHT);
+    glEnd();
+    
+    // Disable blending after drawing the overlay
+    glDisable(GL11.GL_BLEND);
+    
+    // Render the tutorial sprite
+    if (tutorialSpriteTexture != -1) {
+        renderSprite(tutorialSpriteTexture, tutorialSpriteX, tutorialSpriteY, tutorialSpriteWidth, tutorialSpriteHeight);        }
+        
+        // Draw tutorial text based on state
+        if (fontRenderer != null) {
+            switch (tutorialState) {
+                case 0:
+                    // Initial state - Introduction
+                    fontRenderer.renderCenteredText("This is the tutorial", 
+                        App.WINDOW_WIDTH / 2, App.WINDOW_HEIGHT / 2 - 80, 2.0f, 
+                        1.0f, 1.0f, 1.0f, 1.0f);
+                    break;
+                case 1:
+                    // Click instruction
+                    fontRenderer.renderCenteredText("Click the button to continue", 
+                        App.WINDOW_WIDTH / 2, App.WINDOW_HEIGHT / 2 - 80, 2.0f, 
+                        1.0f, 1.0f, 1.0f, 1.0f);
+                    
+                    // Draw highlight around the sprite
+                    glColor4f(1.0f, 1.0f, 0.0f, 0.7f);
+                    glLineWidth(3.0f);
+                    glBegin(GL_LINE_LOOP);
+                    glVertex2f(tutorialSpriteX - 10, tutorialSpriteY - 10);
+                    glVertex2f(tutorialSpriteX + tutorialSpriteWidth + 10, tutorialSpriteY - 10);
+                    glVertex2f(tutorialSpriteX + tutorialSpriteWidth + 10, tutorialSpriteY + tutorialSpriteHeight + 10);
+                    glVertex2f(tutorialSpriteX - 10, tutorialSpriteY + tutorialSpriteHeight + 10);
+                    glEnd();
+                    break;
+            }
+        }
+    }
+    
+    /**
+     * Renders a sprite at the specified position and size.
+     */
+    private void renderSprite(int textureId, float x, float y, float width, float height) {
+        if (textureId < 0) return;
+        
+        // Enable texturing
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        
+        // Draw textured quad
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // White to preserve texture colors
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex2f(x, y);
+        glTexCoord2f(1, 0); glVertex2f(x + width, y);
+        glTexCoord2f(1, 1); glVertex2f(x + width, y + height);
+        glTexCoord2f(0, 1); glVertex2f(x, y + height);
+        glEnd();
+        
+        // Disable texturing
+        glDisable(GL_TEXTURE_2D);
+    }
+
     /**
      * Draws a semi-transparent overlay for victory/failure screens.
      */
@@ -729,6 +869,12 @@ public class GameScreen implements Screen {
     public void handleMouseClick(double mouseX, double mouseY) {
         float mx = (float)mouseX;
         float my = (float)mouseY;
+        
+        // Handle tutorial first if active
+        if (isFirstLevel && tutorialActive) {
+            handleTutorialClick(mx, my);
+            return; // Block other interactions during tutorial
+        }
         
         // Check UI button clicks first
         if (backButton.handleMouseClick(mx, my)) {
@@ -1024,36 +1170,73 @@ public class GameScreen implements Screen {
      */
     private void handleRowMode(int row) {
         if (selectedRow == -1) {
+            // First selection, just highlight the row
             selectedRow = row;
         } else {
-            // Swap entire rows
-            LevelConfig.Cell[] tempRow = grid[selectedRow].clone();
-            grid[selectedRow] = grid[row].clone();
-            grid[row] = tempRow;
+            // Only perform the operation if:
+            // 1. Selecting a different row
+            // 2. At least one cell in both rows is editable
+            if (selectedRow != row) {
+                boolean canSwap = false;
+                
+                // Check if at least one cell in both rows is editable
+                for (int col = 0; col < gridSize; col++) {
+                    if (grid[selectedRow][col].editable && grid[row][col].editable) {
+                        canSwap = true;
+                        break;
+                    }
+                }
+                
+                if (canSwap) {
+                    // Swap entire rows
+                    LevelConfig.Cell[] tempRow = grid[selectedRow].clone();
+                    grid[selectedRow] = grid[row].clone();
+                    grid[row] = tempRow;
+                    
+                    // Only count the move if we actually did something
+                    incrementMoveUsed(MoveType.FLIP_ROW.name());
+                    checkVictory();
+                }
+            }
+            // Reset selection regardless of whether swap occurred
             selectedRow = -1;
-            incrementMoveUsed(MoveType.FLIP_ROW.name());
-            checkVictory();
         }
     }
 
-    /**
-     * Handles column selection and swapping.
-     * 
-     * @param col Column index to select or swap
-     */
     private void handleColumnMode(int col) {
         if (selectedCol == -1) {
+            // First selection, just highlight the column
             selectedCol = col;
         } else {
-            // Swap entire columns
-            for (int i = 0; i < gridSize; i++) {
-                LevelConfig.Cell temp = grid[i][selectedCol];
-                grid[i][selectedCol] = grid[i][col];
-                grid[i][col] = temp;
+            // Only perform the operation if:
+            // 1. Selecting a different column
+            // 2. At least one cell in both columns is editable
+            if (selectedCol != col) {
+                boolean canSwap = false;
+                
+                // Check if at least one cell in both columns is editable
+                for (int row = 0; row < gridSize; row++) {
+                    if (grid[row][selectedCol].editable && grid[row][col].editable) {
+                        canSwap = true;
+                        break;
+                    }
+                }
+                
+                if (canSwap) {
+                    // Swap entire columns
+                    for (int i = 0; i < gridSize; i++) {
+                        LevelConfig.Cell temp = grid[i][selectedCol];
+                        grid[i][selectedCol] = grid[i][col];
+                        grid[i][col] = temp;
+                    }
+                    
+                    // Only count the move if we actually did something
+                    incrementMoveUsed(MoveType.FLIP_COLUMN.name());
+                    checkVictory();
+                }
             }
+            // Reset selection regardless of whether swap occurred
             selectedCol = -1;
-            incrementMoveUsed(MoveType.FLIP_COLUMN.name());
-            checkVictory();
         }
     }
 
@@ -1403,6 +1586,39 @@ public class GameScreen implements Screen {
         if (cloudBackground != null) {
             cloudBackground.cleanup();
             cloudBackground = null;
+        }
+        
+        // Clean up tutorial sprite if loaded
+        if (tutorialSpriteTexture != -1) {
+            glDeleteTextures(tutorialSpriteTexture);
+            tutorialSpriteTexture = -1;
+        }
+    }
+    
+    /**
+     * Handles mouse clicks during the tutorial.
+     */
+    private void handleTutorialClick(float mouseX, float mouseY) {
+        // Check if click is on the tutorial sprite
+        boolean clickedOnSprite = 
+            mouseX >= tutorialSpriteX && 
+            mouseX <= tutorialSpriteX + tutorialSpriteWidth &&
+            mouseY >= tutorialSpriteY && 
+            mouseY <= tutorialSpriteY + tutorialSpriteHeight;
+            
+        switch (tutorialState) {
+            case 0:
+                // Advance from intro to click instruction
+                tutorialState = 1;
+                break;
+                
+            case 1:
+                // Only advance if they clicked on the sprite
+                if (clickedOnSprite) {
+                    tutorialState = 2;
+                    tutorialActive = false; // End tutorial, return to normal gameplay
+                }
+                break;
         }
     }
 }
