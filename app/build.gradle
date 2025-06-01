@@ -110,7 +110,7 @@ tasks.register('fatJar', Jar) {
 sourceSets {
     main {
         resources {
-            srcDirs = ["src/main/resources"]
+            srcDirs = ["src/main/java", "src/main/resources"]
         }
     }
 }
